@@ -233,3 +233,10 @@ Not included in Version 1 but should be considered during architecture planning:
 * Online Payment Gateway Integration
 * Product Analytics
 * Advanced Reporting
+
+## Non-Functional Requirements
+
+- Mobile-first responsive design.
+- Optimized for mobile devices, as most users are expected to access the platform via smartphones.
+- Fast loading performance on 4G/mobile networks.
+- Cross-browser compatibility.
