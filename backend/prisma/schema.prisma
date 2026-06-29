@@ -1,0 +1,276 @@
+// Bio NL Pharmaceuticals — Prisma Schema
+// Database Schema v2.0
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum PaymentMethod {
+  INSTAPAY
+  VODAFONE_CASH
+}
+
+// ---------------------------------------------------------------------------
+// Admin
+// ---------------------------------------------------------------------------
+
+/// Dashboard access. Accounts are seeded manually — no public registration.
+model Admin {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  passwordHash String
+  fullName     String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("admins")
+}
+
+// ---------------------------------------------------------------------------
+// Product
+// ---------------------------------------------------------------------------
+
+model Product {
+  id   String @id @default(uuid()) @db.Uuid
+  slug String @unique
+
+  // Arabic content
+  nameAr              String
+  descriptionAr       String   @db.Text
+  ingredientsAr       String?  @db.Text
+  usageInstructionsAr String?  @db.Text
+
+  // English content
+  nameEn              String
+  descriptionEn       String   @db.Text
+  ingredientsEn       String?  @db.Text
+  usageInstructionsEn String?  @db.Text
+
+  // Pricing
+  price Decimal @db.Decimal(10, 2)
+
+  // Cover image (Cloudinary)
+  coverImageUrl      String
+  coverImagePublicId String
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  images     ProductImage[]
+  categories ProductCategory[]
+  orderItems OrderItem[]
+
+  @@index([price])
+  @@index([createdAt])
+  @@map("products")
+}
+
+// ---------------------------------------------------------------------------
+// Product Image (gallery)
+// ---------------------------------------------------------------------------
+
+model ProductImage {
+  id                 String   @id @default(uuid()) @db.Uuid
+  imageUrl           String
+  cloudinaryPublicId String
+  displayOrder       Int
+  createdAt          DateTime @default(now())
+
+  // Relations
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String  @db.Uuid
+
+  @@index([productId])
+  @@index([productId, displayOrder])
+  @@map("product_images")
+}
+
+// ---------------------------------------------------------------------------
+// Category
+// ---------------------------------------------------------------------------
+
+model Category {
+  id     String @id @default(uuid()) @db.Uuid
+  slug   String @unique
+  nameAr String
+  nameEn String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  products ProductCategory[]
+
+  @@map("categories")
+}
+
+// ---------------------------------------------------------------------------
+// Product ↔ Category (many-to-many junction)
+// ---------------------------------------------------------------------------
+
+model ProductCategory {
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId  String   @db.Uuid
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String   @db.Uuid
+
+  @@id([productId, categoryId])
+  @@index([categoryId])
+  @@map("product_categories")
+}
+
+// ---------------------------------------------------------------------------
+// Order
+// ---------------------------------------------------------------------------
+
+model Order {
+  id String @id @default(uuid()) @db.Uuid
+
+  // Customer information
+  customerName String
+  phoneNumber  String
+  email        String?
+
+  // Location
+  governorate           String
+  cityOrCenterOrVillage String
+  address               String
+
+  // Additional
+  notes String? @db.Text
+
+  // Payment
+  paymentMethod  PaymentMethod
+  subtotalAmount Decimal       @db.Decimal(10, 2)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  // Relations
+  items         OrderItem[]
+  paymentProofs PaymentProof[]
+
+  @@index([createdAt])
+  @@index([phoneNumber])
+  @@map("orders")
+}
+
+// ---------------------------------------------------------------------------
+// Order Item (price snapshot pattern)
+// ---------------------------------------------------------------------------
+
+model OrderItem {
+  id String @id @default(uuid()) @db.Uuid
+
+  // Product snapshot (frozen at order time)
+  productNameAr String
+  productNameEn String
+  unitPrice     Decimal @db.Decimal(10, 2)
+  quantity      Int
+  totalPrice    Decimal @db.Decimal(10, 2)
+
+  // Soft reference to originating product (nullable for analytics)
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productId String?  @db.Uuid
+
+  // Parent order
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId String @db.Uuid
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+// ---------------------------------------------------------------------------
+// Payment Proof
+// ---------------------------------------------------------------------------
+
+/// Payment receipt screenshots uploaded by customers at order submission.
+model PaymentProof {
+  id                 String   @id @default(uuid()) @db.Uuid
+  imageUrl           String
+  cloudinaryPublicId String
+  uploadedAt         DateTime @default(now())
+
+  // Parent order
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId String @db.Uuid
+
+  @@index([orderId])
+  @@map("payment_proofs")
+}
+
+// ---------------------------------------------------------------------------
+// Offer
+// ---------------------------------------------------------------------------
+
+/// Marketing content only. No discount calculation or product linking in V1.
+model Offer {
+  id String @id @default(uuid()) @db.Uuid
+
+  // Arabic content
+  titleAr       String
+  descriptionAr String? @db.Text
+
+  // English content
+  titleEn       String
+  descriptionEn String? @db.Text
+
+  // Media (Cloudinary)
+  imageUrl           String?
+  cloudinaryPublicId String?
+
+  // Display
+  showInTopBanner Boolean @default(false)
+
+  // Duration (active when now() is between startDate and endDate)
+  startDate DateTime
+  endDate   DateTime
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([startDate, endDate])
+  @@index([showInTopBanner])
+  @@map("offers")
+}
+
+// ---------------------------------------------------------------------------
+// Contact Message
+// ---------------------------------------------------------------------------
+
+model ContactMessage {
+  id String @id @default(uuid()) @db.Uuid
+
+  // Customer information
+  fullName    String
+  phoneNumber String
+  email       String?
+
+  // Message content
+  subject String
+  message String @db.Text
+
+  // Status
+  isRead Boolean @default(false)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("contact_messages")
+}
