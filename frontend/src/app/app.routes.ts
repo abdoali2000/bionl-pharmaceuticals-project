@@ -4,6 +4,7 @@ import { AdminLayoutComponent } from './layouts/admin-layout/admin-layout.compon
 import { DummyComponent } from './shared/components/dummy.component';
 import { LoginPageComponent } from './features/auth/login-page/login-page.component';
 import { adminAuthGuard } from './core/guards/admin-auth.guard';
+import { AdminCategoriesListComponent } from './features/admin/categories/pages/admin-categories-list/admin-categories-list.component';
 
 export const routes: Routes = [
   // ─── Public routes ─────────────────────────────────────────────────────────
@@ -25,11 +26,17 @@ export const routes: Routes = [
     component: AdminLayoutComponent,
     children: [
       // Login is NOT guarded — it's the entry point
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'login', component: LoginPageComponent },
       // All other admin routes require a valid session
       {
         path: 'dashboard',
         component: DummyComponent,
+        canActivate: [adminAuthGuard]
+      },
+      {
+        path: 'categories',
+        component: AdminCategoriesListComponent,
         canActivate: [adminAuthGuard]
       }
     ]
@@ -37,4 +44,5 @@ export const routes: Routes = [
   // ─── Fallback ───────────────────────────────────────────────────────────────
   { path: '**', redirectTo: '' }
 ];
+
 

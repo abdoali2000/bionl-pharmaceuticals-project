@@ -1,4 +1,5 @@
 /* Global styles — Bio NL Pharmaceuticals */
+@import 'primeicons/primeicons.css';
 
 /* Box-model reset */
 *, *::before, *::after {
@@ -17,3 +18,9 @@ app-root {
   display: block;
   min-height: 100dvh;
 }
+
+/* Force-hide PrimeNG marketing license watermark */
+#p-license-host {
+    display: none !important;
+}
+
