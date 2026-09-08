@@ -1,0 +1,26 @@
+/* Global styles — Bio NL Pharmaceuticals */
+@import 'primeicons/primeicons.css';
+
+/* Box-model reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Strip default margin/padding so layouts control all spacing */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+/* app-root is an inline element by default — make it a full-height block */
+app-root {
+  display: block;
+  min-height: 100dvh;
+}
+
+/* Force-hide PrimeNG marketing license watermark */
+#p-license-host {
+    display: none !important;
+}
+
