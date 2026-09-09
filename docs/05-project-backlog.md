@@ -534,12 +534,12 @@ Products are the core catalog. The public website displays them on the home page
 ### TASK-ID: EP-03-02
 
 ### Title
-Backend: Admin Product CRUD (Text + Categories)
+Backend: Admin Product CRUD (Cover Image + Text + Categories)
 
 ---
 
 ### Objective
-Implement admin endpoints for creating, updating, and deleting products (text fields and category associations). Cover image upload is handled in EP-03-03.
+Implement admin endpoints for creating, updating, and deleting products. Product creation (`POST /admin/products`) accepts `multipart/form-data` combining text fields, category associations, and the **cover image** in a single atomic request — the cover image is mandatory at creation time. Updating text/categories (`PATCH /admin/products/:id`) is JSON-only and does not touch images. Cover image *replacement* on an existing product is handled in EP-03-04. Additional gallery images are managed separately in EP-03-03.
 
 ---
 
