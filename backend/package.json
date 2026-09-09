@@ -16,7 +16,8 @@
     "db:migrate": "npx prisma migrate dev",
     "db:generate": "npx prisma generate",
     "db:seed": "npx ts-node --project tsconfig.seed.json prisma/seed.ts",
-    "db:studio": "npx prisma studio"
+    "db:studio": "npx prisma studio",
+    "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.27",
@@ -49,9 +50,14 @@
     "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
     "@types/multer": "^2.1.0",
     "@types/node": "^26.0.1",
     "@types/passport-jwt": "^4.0.1",
+    "@types/supertest": "^7.2.1",
+    "jest": "^30.5.1",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.12",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3"
   }
