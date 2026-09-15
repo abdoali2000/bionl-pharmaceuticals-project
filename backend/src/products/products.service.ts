@@ -455,6 +455,54 @@ export class ProductsService {
     await this.prisma.product.delete({ where: { id } });
   }
 
+  // ── Replace cover image (EP-03-04) ──────────────────────────────────────────
+
+  /**
+   * Replaces the cover image for a product.
+   *
+   * Order of operations (CRITICAL):
+   *   1. Upload the new image to Cloudinary. If this fails, throw immediately —
+   *      the old image is untouched and the DB is never updated.
+   *   2. Attempt to delete the old image from Cloudinary. If this fails, log
+   *      the error but do NOT throw — the new image is valid and must be saved.
+   *   3. Update coverImageUrl and coverImagePublicId in the database.
+   */
+  async replaceCoverImage(
+    id: string,
+    file: Express.Multer.File,
+  ): Promise<{ coverImageUrl: string; coverImagePublicId: string }> {
+    const product = await this.findProductOrFail(id);
+
+    // Step 1: Upload new image — failure aborts the entire operation.
+    const { url: newUrl, publicId: newPublicId } = await this.cloudinary.uploadFile(
+      file.buffer,
+      'bionl/products/covers',
+    );
+
+    // Step 2: Delete old image — failure is logged but does not block the update.
+    try {
+      await this.cloudinary.deleteFile(product.coverImagePublicId);
+    } catch (error) {
+      this.logger.error(
+        `Failed to delete old cover image from Cloudinary (publicId: ${product.coverImagePublicId}). ` +
+          'The new image was uploaded successfully. Proceeding with DB update. ' +
+          'The old asset may need manual cleanup.',
+        error,
+      );
+    }
+
+    // Step 3: Persist the new image details.
+    const updated = await this.prisma.product.update({
+      where: { id },
+      data: { coverImageUrl: newUrl, coverImagePublicId: newPublicId },
+    });
+
+    return {
+      coverImageUrl: updated.coverImageUrl,
+      coverImagePublicId: updated.coverImagePublicId,
+    };
+  }
+
   // ── Private helpers ──────────────────────────────────────────────────────────
 
   /** Throws 404 if product does not exist — used as an existence guard. */
