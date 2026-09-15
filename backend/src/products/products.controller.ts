@@ -160,6 +160,33 @@ export class ProductsController {
   }
 
   /**
+   * PATCH /api/admin/products/:id/cover-image
+   * Replace the cover image for an existing product (EP-03-04).
+   * Accepts multipart/form-data with a single `coverImage` file field.
+   * Logic: upload new → soft-delete old → update DB.
+   */
+  @Patch('admin/products/:id/cover-image')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(COVER_IMAGE_INTERCEPTOR)
+  async replaceCoverImage(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UploadedFile() coverImage: Express.Multer.File,
+  ) {
+    if (!coverImage) {
+      throw new BadRequestException(
+        'Cover image is required. Send a valid JPEG, PNG, or WEBP file in the "coverImage" field.',
+      );
+    }
+
+    const result = await this.productsService.replaceCoverImage(id, coverImage);
+    return {
+      message: 'Cover image replaced successfully',
+      data: result,
+      meta: null,
+    };
+  }
+
+  /**
    * DELETE /api/admin/products/:id
    * Delete a product along with all gallery images and cover image from Cloudinary.
    */
