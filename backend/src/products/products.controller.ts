@@ -11,38 +11,53 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  UploadedFiles,
   BadRequestException,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { GetProductsQueryDto } from './dto/get-products-query.dto';
+import { ReorderImagesDto } from './dto/reorder-images.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 // ---------------------------------------------------------------------------
 // Multer config — store uploads in memory so we can pipe the buffer to Cloudinary
 // ---------------------------------------------------------------------------
 
+const ALLOWED_IMAGE_MIMETYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const IMAGE_FILE_FILTER = (
+  _req: any,
+  file: Express.Multer.File,
+  cb: (error: Error | null, acceptFile: boolean) => void,
+) => {
+  if (ALLOWED_IMAGE_MIMETYPES.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(
+      new BadRequestException(
+        `Invalid file type "${file.mimetype}". Only JPEG, PNG, and WEBP are allowed.`,
+      ),
+      false,
+    );
+  }
+};
+
 const COVER_IMAGE_INTERCEPTOR = FileInterceptor('coverImage', {
   storage: memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
-  fileFilter: (_req, file, cb) => {
-    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
-    if (allowed.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(
-        new BadRequestException(
-          `Invalid file type "${file.mimetype}". Only JPEG, PNG, and WEBP are allowed.`,
-        ),
-        false,
-      );
-    }
-  },
+  fileFilter: IMAGE_FILE_FILTER,
+});
+
+/** Gallery upload: accepts up to 10 files in the "images" field */
+const GALLERY_IMAGES_INTERCEPTOR = FilesInterceptor('images', 10, {
+  storage: memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB per file
+  fileFilter: IMAGE_FILE_FILTER,
 });
 
 // ---------------------------------------------------------------------------
@@ -198,6 +213,72 @@ export class ProductsController {
     return {
       message: 'Product deleted successfully',
       data: null,
+      meta: null,
+    };
+  }
+
+  // ── Gallery image sub-resource endpoints (EP-03-03) ──────────────────────────
+
+  /**
+   * POST /api/admin/products/:id/images
+   * Upload one or more gallery images for a product (max 10, 5 MB each).
+   * Appends new images after the current highest displayOrder.
+   */
+  @Post('admin/products/:id/images')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(GALLERY_IMAGES_INTERCEPTOR)
+  async addGalleryImages(
+    @Param('id', ParseUUIDPipe) id: string,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    if (!files || files.length === 0) {
+      throw new BadRequestException(
+        'At least one image file is required in the "images" field.',
+      );
+    }
+
+    const images = await this.productsService.addGalleryImages(id, files);
+    return {
+      message: 'Gallery images uploaded successfully',
+      data: images,
+      meta: null,
+    };
+  }
+
+  /**
+   * DELETE /api/admin/products/:id/images/:imageId
+   * Remove a single gallery image. Returns 400 if the image does not belong to this product.
+   */
+  @Delete('admin/products/:id/images/:imageId')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async deleteGalleryImage(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('imageId', ParseUUIDPipe) imageId: string,
+  ) {
+    await this.productsService.deleteGalleryImage(id, imageId);
+    return {
+      message: 'Gallery image deleted successfully',
+      data: null,
+      meta: null,
+    };
+  }
+
+  /**
+   * PATCH /api/admin/products/:id/images/reorder
+   * Atomically update the displayOrder for every image in the provided list.
+   * All image IDs must belong to this product or a 400 is returned.
+   */
+  @Patch('admin/products/:id/images/reorder')
+  @UseGuards(JwtAuthGuard)
+  async reorderGalleryImages(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: ReorderImagesDto,
+  ) {
+    const images = await this.productsService.reorderGalleryImages(id, dto.images);
+    return {
+      message: 'Gallery images reordered successfully',
+      data: images,
       meta: null,
     };
   }

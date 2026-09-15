@@ -4,9 +4,16 @@ import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 
+// ---------------------------------------------------------------------------
+// Slugs that this suite owns — used for scoped setup and teardown
+// ---------------------------------------------------------------------------
+
+const OWNED_SLUGS = ['bio-derma-cream', 'bio-face-wash', 'omega-3'];
+const OWNED_CATEGORY_SLUGS = ['derma', 'supplements'];
+
+jest.setTimeout(30000);
+
 describe('Public Products (e2e)', () => {
-  jest.setTimeout(30000); // Increase timeout for NestJS boot and Neon DB connection
-  
   let app: INestApplication;
   let prisma: PrismaService;
 
@@ -17,23 +24,17 @@ describe('Public Products (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-        transform: true,
-        forbidNonWhitelisted: true,
-      }),
+      new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }),
     );
     await app.init();
 
     prisma = app.get(PrismaService);
-    
-    // Clean up before starting
-    await prisma.productCategory.deleteMany();
-    await prisma.productImage.deleteMany();
-    await prisma.product.deleteMany();
-    await prisma.category.deleteMany();
 
-    // Seed data
+    // Remove only the rows owned by this suite (slug-scoped) so we don't
+    // disturb products created by other suites running in --runInBand order.
+    await cleanupOwnedData(prisma);
+
+    // Seed three deterministic products
     const catDerma = await prisma.category.create({
       data: { nameAr: 'ديرما', nameEn: 'Derma', slug: 'derma' },
     });
@@ -53,9 +54,15 @@ describe('Public Products (e2e)', () => {
         coverImagePublicId: 'secret-id-derma',
         categories: { create: [{ categoryId: catDerma.id }] },
         images: {
-          create: [{ imageUrl: 'http://example.com/gal1.jpg', cloudinaryPublicId: 'secret-gal-1', displayOrder: 1 }]
-        }
-      }
+          create: [
+            {
+              imageUrl: 'http://example.com/gal1.jpg',
+              cloudinaryPublicId: 'secret-gal-1',
+              displayOrder: 1,
+            },
+          ],
+        },
+      },
     });
 
     await prisma.product.create({
@@ -68,8 +75,8 @@ describe('Public Products (e2e)', () => {
         price: '250',
         coverImageUrl: 'http://example.com/bio-wash.jpg',
         coverImagePublicId: 'secret-id-wash',
-        categories: { create: [{ categoryId: catDerma.id }] }
-      }
+        categories: { create: [{ categoryId: catDerma.id }] },
+      },
     });
 
     await prisma.product.create({
@@ -82,32 +89,43 @@ describe('Public Products (e2e)', () => {
         price: '50',
         coverImageUrl: 'http://example.com/omega.jpg',
         coverImagePublicId: 'secret-id-omega',
-        categories: { create: [{ categoryId: catSupplements.id }] }
-      }
+        categories: { create: [{ categoryId: catSupplements.id }] },
+      },
     });
   });
 
   afterAll(async () => {
-    // Clean up
-    await prisma.productCategory.deleteMany();
-    await prisma.productImage.deleteMany();
-    await prisma.product.deleteMany();
-    await prisma.category.deleteMany();
+    await cleanupOwnedData(prisma);
     await app.close();
   });
 
-  it('/api/products (GET) - Retrieve all products and strip sensitive data', async () => {
-    const response = await request(app.getHttpServer())
-      .get('/products')
-      .expect(200);
+  // ── Helpers ──────────────────────────────────────────────────────────────────
+
+  /**
+   * Deletes only the products and categories seeded by this suite.
+   * Does not touch data created by other test suites.
+   */
+  async function cleanupOwnedData(p: PrismaService) {
+    await p.product.deleteMany({ where: { slug: { in: OWNED_SLUGS } } });
+    await p.category.deleteMany({ where: { slug: { in: OWNED_CATEGORY_SLUGS } } });
+  }
+
+  // ── Tests ─────────────────────────────────────────────────────────────────────
+
+  it('GET /products — retrieves all products and strips sensitive data', async () => {
+    const response = await request(app.getHttpServer()).get('/products').expect(200);
 
     expect(response.body.message).toBe('Products retrieved successfully');
-    expect(response.body.data.length).toBe(3);
-    expect(response.body.meta.total).toBe(3);
 
-    // Verify sensitive data is stripped
-    const products = response.body.data;
-    for (const product of products) {
+    const data: any[] = response.body.data;
+
+    // The three seeded products must all be present (other suites may add more)
+    const slugs = data.map((p: any) => p.slug);
+    expect(slugs).toEqual(expect.arrayContaining(OWNED_SLUGS));
+    expect(response.body.meta.total).toBeGreaterThanOrEqual(3);
+
+    // Sensitive fields must be stripped from every product
+    for (const product of data) {
       expect(product.coverImagePublicId).toBeUndefined();
       if (product.images && product.images.length > 0) {
         expect(product.images[0].cloudinaryPublicId).toBeUndefined();
@@ -115,55 +133,72 @@ describe('Public Products (e2e)', () => {
     }
   });
 
-  it('/api/products (GET) - Filter by category', async () => {
+  it('GET /products?category=derma — filters to the two derma products', async () => {
     const response = await request(app.getHttpServer())
       .get('/products?category=derma')
       .expect(200);
 
-    expect(response.body.data.length).toBe(2);
-    expect(response.body.meta.total).toBe(2);
-    expect(response.body.data.some((p: any) => p.slug === 'bio-derma-cream')).toBe(true);
-    expect(response.body.data.some((p: any) => p.slug === 'bio-face-wash')).toBe(true);
+    const slugs = response.body.data.map((p: any) => p.slug);
+    // Both derma products must be present; omega-3 must not appear
+    expect(slugs).toContain('bio-derma-cream');
+    expect(slugs).toContain('bio-face-wash');
+    expect(slugs).not.toContain('omega-3');
+    // The count must include at least our two seeded derma products
+    expect(response.body.data.length).toBeGreaterThanOrEqual(2);
   });
 
-  it('/api/products (GET) - Filter by search (case-insensitive on nameEn/nameAr)', async () => {
+  it('GET /products?search=bio — case-insensitive search on nameEn/nameAr', async () => {
     const response = await request(app.getHttpServer())
       .get('/products?search=bio')
       .expect(200);
 
-    expect(response.body.data.length).toBe(2);
-    expect(response.body.data.some((p: any) => p.nameEn.toLowerCase().includes('bio'))).toBe(true);
+    const slugs = response.body.data.map((p: any) => p.slug);
+    expect(slugs).toContain('bio-derma-cream');
+    expect(slugs).toContain('bio-face-wash');
+    // Every returned product must match "bio" in at least one name field
+    for (const p of response.body.data) {
+      const matchesBio =
+        p.nameEn?.toLowerCase().includes('bio') ||
+        p.nameAr?.toLowerCase().includes('bio');
+      expect(matchesBio).toBe(true);
+    }
   });
 
-  it('/api/products (GET) - Filter by minPrice and maxPrice', async () => {
+  it('GET /products?minPrice=100&maxPrice=200 — filters by price range', async () => {
     const response = await request(app.getHttpServer())
       .get('/products?minPrice=100&maxPrice=200')
       .expect(200);
 
-    expect(response.body.data.length).toBe(1);
-    expect(response.body.data[0].slug).toBe('bio-derma-cream'); // price is 150
+    const slugs = response.body.data.map((p: any) => p.slug);
+    // bio-derma-cream (150 EGP) must be present; omega-3 (50) must not
+    expect(slugs).toContain('bio-derma-cream');
+    expect(slugs).not.toContain('omega-3');
+    // bio-face-wash (250) must not be present either
+    expect(slugs).not.toContain('bio-face-wash');
   });
 
-  it('/api/products/:slug (GET) - Retrieve single product and related products', async () => {
+  it('GET /products/:slug — returns single product with related products and stripped fields', async () => {
     const response = await request(app.getHttpServer())
       .get('/products/bio-derma-cream')
       .expect(200);
 
     const product = response.body.data;
     expect(product.slug).toBe('bio-derma-cream');
-    expect(product.coverImagePublicId).toBeUndefined(); // Sensitive data stripped
+    expect(product.coverImagePublicId).toBeUndefined();
 
-    // Check related products
+    // Gallery image cloudinaryPublicId must also be stripped
+    expect(product.images[0].cloudinaryPublicId).toBeUndefined();
+
+    // bio-face-wash shares the 'derma' category → must appear in relatedProducts
     expect(product.relatedProducts).toBeDefined();
-    expect(product.relatedProducts.length).toBe(1);
-    expect(product.relatedProducts[0].slug).toBe('bio-face-wash'); // Shares 'derma' category
-    // Related products should only return specific fields (id, slug, nameAr, nameEn, price, coverImageUrl)
+    const relatedSlugs = product.relatedProducts.map((p: any) => p.slug);
+    expect(relatedSlugs).toContain('bio-face-wash');
+
+    // Related products must expose only the lightweight fields
     expect(product.relatedProducts[0].descriptionEn).toBeUndefined();
   });
 
-  it('/api/products/:slug (GET) - Unknown slug returns 404', async () => {
-    await request(app.getHttpServer())
-      .get('/products/unknown-slug')
-      .expect(404);
+  it('GET /products/:slug — unknown slug returns 404', async () => {
+    await request(app.getHttpServer()).get('/products/unknown-slug').expect(404);
   });
 });

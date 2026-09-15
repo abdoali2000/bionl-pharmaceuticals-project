@@ -287,6 +287,149 @@ export class ProductsService {
     return toAdminProduct(updated);
   }
 
+  // ── Gallery image upload ─────────────────────────────────────────────────────
+
+  /**
+   * Uploads `files` to Cloudinary folder `bionl/products/gallery` and creates
+   * a `ProductImage` record for each, with `displayOrder` continuing from the
+   * current maximum.
+   *
+   * Atomicity: if any Cloudinary upload fails, all previously-uploaded assets
+   * for this batch are deleted before the error is rethrown.
+   */
+  async addGalleryImages(
+    productId: string,
+    files: Express.Multer.File[],
+  ): Promise<any[]> {
+    await this.findProductOrFail(productId);
+
+    // Determine the starting displayOrder for the new batch
+    const maxOrderRecord = await this.prisma.productImage.findFirst({
+      where: { productId },
+      orderBy: { displayOrder: 'desc' },
+      select: { displayOrder: true },
+    });
+    let nextOrder = (maxOrderRecord?.displayOrder ?? 0) + 1;
+
+    // Upload all files to Cloudinary — roll back on any failure
+    const uploaded: { url: string; publicId: string }[] = [];
+    try {
+      for (const file of files) {
+        const result = await this.cloudinary.uploadFile(
+          file.buffer,
+          'bionl/products/gallery',
+        );
+        uploaded.push(result);
+      }
+    } catch (error) {
+      // Roll back already-uploaded assets for this batch
+      this.logger.error(
+        `Gallery batch upload failed for product ${productId}. Rolling back ${uploaded.length} uploaded asset(s).`,
+      );
+      for (const asset of uploaded) {
+        await this.cloudinary.deleteFile(asset.publicId);
+      }
+      throw error;
+    }
+
+    // Persist all ProductImage records in a single transaction
+    const created = await this.prisma.$transaction(
+      uploaded.map((asset) =>
+        this.prisma.productImage.create({
+          data: {
+            productId,
+            imageUrl: asset.url,
+            cloudinaryPublicId: asset.publicId,
+            displayOrder: nextOrder++,
+          },
+          select: {
+            id: true,
+            imageUrl: true,
+            cloudinaryPublicId: true,
+            displayOrder: true,
+          },
+        }),
+      ),
+    );
+
+    return created;
+  }
+
+  // ── Gallery image delete ─────────────────────────────────────────────────────
+
+  /**
+   * Deletes a single gallery image.
+   * Returns 400 (not 404) when the `imageId` does not belong to `productId`,
+   * per the acceptance criteria.
+   */
+  async deleteGalleryImage(productId: string, imageId: string): Promise<void> {
+    await this.findProductOrFail(productId);
+
+    const image = await this.prisma.productImage.findUnique({
+      where: { id: imageId },
+      select: { id: true, productId: true, cloudinaryPublicId: true },
+    });
+
+    if (!image || image.productId !== productId) {
+      throw new BadRequestException(
+        `Image with id "${imageId}" does not belong to product "${productId}"`,
+      );
+    }
+
+    // Delete from Cloudinary first (failure is logged, not thrown)
+    await this.cloudinary.deleteFile(image.cloudinaryPublicId);
+
+    // Remove the DB record
+    await this.prisma.productImage.delete({ where: { id: imageId } });
+  }
+
+  // ── Gallery image reorder ────────────────────────────────────────────────────
+
+  /**
+   * Atomically updates `displayOrder` for a batch of gallery images.
+   * All provided IDs must belong to the given product; otherwise returns 400.
+   */
+  async reorderGalleryImages(
+    productId: string,
+    items: { id: string; displayOrder: number }[],
+  ): Promise<any[]> {
+    await this.findProductOrFail(productId);
+
+    // Validate that every provided ID belongs to this product
+    const imageIds = items.map((i) => i.id);
+    const existingImages = await this.prisma.productImage.findMany({
+      where: { id: { in: imageIds }, productId },
+      select: { id: true },
+    });
+
+    const existingIds = new Set(existingImages.map((img) => img.id));
+    const foreignIds = imageIds.filter((id) => !existingIds.has(id));
+
+    if (foreignIds.length > 0) {
+      throw new BadRequestException(
+        `The following image IDs do not belong to product "${productId}": ${foreignIds.join(', ')}`,
+      );
+    }
+
+    // Apply all displayOrder updates atomically
+    const updated = await this.prisma.$transaction(
+      items.map((item) =>
+        this.prisma.productImage.update({
+          where: { id: item.id },
+          data: { displayOrder: item.displayOrder },
+          select: {
+            id: true,
+            imageUrl: true,
+            cloudinaryPublicId: true,
+            displayOrder: true,
+          },
+        }),
+      ),
+    );
+
+    return updated.sort((a, b) => a.displayOrder - b.displayOrder);
+  }
+
   // ── Delete (full cascade + Cloudinary cleanup) ───────────────────────────────
 
   async remove(id: string): Promise<void> {
