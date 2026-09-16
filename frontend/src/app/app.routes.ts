@@ -8,6 +8,7 @@ import { AdminCategoriesListComponent } from './features/admin/categories/pages/
 import { AdminProductsListComponent } from './features/admin/products/pages/admin-products-list/admin-products-list.component';
 import { AdminProductFormComponent } from './features/admin/products/pages/admin-product-form/admin-product-form.component';
 import { ProductsPageComponent } from './features/products/pages/products-page/products-page.component';
+import { ProductDetailPageComponent } from './features/products/pages/product-detail-page/product-detail-page.component';
 
 export const routes: Routes = [
   // ─── Public routes ─────────────────────────────────────────────────────────
@@ -17,7 +18,7 @@ export const routes: Routes = [
     children: [
       { path: '', component: DummyComponent },
       { path: 'products', component: ProductsPageComponent },
-      { path: 'products/:slug', component: DummyComponent },
+      { path: 'products/:slug', component: ProductDetailPageComponent },
       { path: 'about', component: DummyComponent },
       { path: 'offers', component: DummyComponent },
       { path: 'contact', component: DummyComponent }
