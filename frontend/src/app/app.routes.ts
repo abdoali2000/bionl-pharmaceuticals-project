@@ -5,6 +5,8 @@ import { DummyComponent } from './shared/components/dummy.component';
 import { LoginPageComponent } from './features/auth/login-page/login-page.component';
 import { adminAuthGuard } from './core/guards/admin-auth.guard';
 import { AdminCategoriesListComponent } from './features/admin/categories/pages/admin-categories-list/admin-categories-list.component';
+import { AdminProductsListComponent } from './features/admin/products/pages/admin-products-list/admin-products-list.component';
+import { AdminProductFormComponent } from './features/admin/products/pages/admin-product-form/admin-product-form.component';
 
 export const routes: Routes = [
   // ─── Public routes ─────────────────────────────────────────────────────────
@@ -37,6 +39,22 @@ export const routes: Routes = [
       {
         path: 'categories',
         component: AdminCategoriesListComponent,
+        canActivate: [adminAuthGuard]
+      },
+      // ─── Product Management ─────────────────────────────────────────────────
+      {
+        path: 'products',
+        component: AdminProductsListComponent,
+        canActivate: [adminAuthGuard]
+      },
+      {
+        path: 'products/create',
+        component: AdminProductFormComponent,
+        canActivate: [adminAuthGuard]
+      },
+      {
+        path: 'products/:id/edit',
+        component: AdminProductFormComponent,
         canActivate: [adminAuthGuard]
       }
     ]

@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import {
   ReactiveFormsModule,
   FormBuilder,
@@ -246,6 +246,7 @@ export class LoginPageComponent {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   readonly langService = inject(LanguageService);
 
   loading = signal(false);
@@ -255,6 +256,11 @@ export class LoginPageComponent {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
+
+  /** The URL to return to after a successful login. Defaults to /admin/dashboard. */
+  private get returnUrl(): string {
+    return this.route.snapshot.queryParamMap.get('returnUrl') ?? '/admin/dashboard';
+  }
 
   /** Bilingual labels derived from the current language signal. */
   labels = () => {
@@ -292,7 +298,8 @@ export class LoginPageComponent {
     this.authService.login({ email: email!, password: password! }).subscribe({
       next: () => {
         this.loading.set(false);
-        this.router.navigate(['/admin/dashboard'], { replaceUrl: true });
+        // Navigate to the originally requested URL, or fall back to /admin/dashboard.
+        this.router.navigate([this.returnUrl], { replaceUrl: true });
       },
       error: (err) => {
         this.loading.set(false);
