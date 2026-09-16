@@ -7,6 +7,7 @@ import { adminAuthGuard } from './core/guards/admin-auth.guard';
 import { AdminCategoriesListComponent } from './features/admin/categories/pages/admin-categories-list/admin-categories-list.component';
 import { AdminProductsListComponent } from './features/admin/products/pages/admin-products-list/admin-products-list.component';
 import { AdminProductFormComponent } from './features/admin/products/pages/admin-product-form/admin-product-form.component';
+import { ProductsPageComponent } from './features/products/pages/products-page/products-page.component';
 
 export const routes: Routes = [
   // ─── Public routes ─────────────────────────────────────────────────────────
@@ -15,7 +16,7 @@ export const routes: Routes = [
     component: PublicLayoutComponent,
     children: [
       { path: '', component: DummyComponent },
-      { path: 'products', component: DummyComponent },
+      { path: 'products', component: ProductsPageComponent },
       { path: 'products/:slug', component: DummyComponent },
       { path: 'about', component: DummyComponent },
       { path: 'offers', component: DummyComponent },
