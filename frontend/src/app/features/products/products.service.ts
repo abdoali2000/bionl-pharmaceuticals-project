@@ -25,6 +25,10 @@ export interface PublicProduct {
   nameEn: string;
   descriptionAr: string | null;
   descriptionEn: string | null;
+  ingredientsAr: string | null;
+  ingredientsEn: string | null;
+  usageInstructionsAr: string | null;
+  usageInstructionsEn: string | null;
   price: number;
   coverImageUrl: string;
   categories: PublicCategory[];
@@ -91,5 +95,23 @@ export class ProductsService {
         error: () => this.loadingProducts.set(false)
       })
     );
+  }
+
+  /** GET /products/:slug — fetches a single product for the detail page. */
+  getProductBySlug(slug: string): Observable<ApiResponse<PublicProduct>> {
+    return this.api.get<ApiResponse<PublicProduct>>(`/products/${encodeURIComponent(slug)}`);
+  }
+
+  /**
+   * GET /products — fetch up to `limit` products from the same category,
+   * excluding the current product. Used for the related products row.
+   * Returns a plain Observable; the caller manages its own local state.
+   */
+  loadRelatedProducts(categoryId: string, excludeSlug: string, limit = 4): Observable<ApiResponse<PublicProduct[]>> {
+    const params = new HttpParams()
+      .set('categoryId', categoryId)
+      .set('limit', String(limit + 1)); // fetch one extra so we can exclude current
+
+    return this.api.get<ApiResponse<PublicProduct[]>>('/products', params);
   }
 }
