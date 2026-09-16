@@ -49,7 +49,11 @@ export class AuthService {
   /**
    * GET /auth/me
    * Refreshes currentAdmin from the server. Returns the profile observable.
-   * Callers should handle 401 (catchError) to treat as unauthenticated.
+   * Callers should handle errors (catchError) to treat as unauthenticated.
+   *
+   * IMPORTANT: Only a true 401 Unauthorized response clears the local session.
+   * Transient network errors or 5xx responses do NOT destroy the auth state,
+   * preventing spurious logouts due to temporary connectivity issues.
    */
   me(): Observable<ApiResponse<AdminProfile>> {
     return this.api.get<ApiResponse<AdminProfile>>('/auth/me').pipe(
@@ -59,7 +63,10 @@ export class AuthService {
         }
       }),
       catchError(err => {
-        this.currentAdmin.set(null);
+        // Only treat an explicit 401 as "session expired/invalid"
+        if (err?.status === 401) {
+          this.currentAdmin.set(null);
+        }
         return throwError(() => err);
       })
     );
