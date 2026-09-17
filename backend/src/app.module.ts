@@ -7,6 +7,7 @@ import { WebhookModule } from './webhook/webhook.module';
 import { AuthModule } from './auth/auth.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ProductsModule } from './products/products.module';
+import { OffersModule } from './offers/offers.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { ProductsModule } from './products/products.module';
     AuthModule,
     CategoriesModule,
     ProductsModule,
+    OffersModule,
   ],
 })
 export class AppModule {}
