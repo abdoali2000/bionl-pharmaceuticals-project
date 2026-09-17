@@ -24,28 +24,12 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { GetProductsQueryDto } from './dto/get-products-query.dto';
 import { ReorderImagesDto } from './dto/reorder-images.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { IMAGE_FILE_FILTER } from '../common/utils/multer.config';
 
 // ---------------------------------------------------------------------------
 // Multer config — store uploads in memory so we can pipe the buffer to Cloudinary
+// IMAGE_FILE_FILTER is shared from common/utils/multer.config.ts (Option B)
 // ---------------------------------------------------------------------------
-
-const ALLOWED_IMAGE_MIMETYPES = ['image/jpeg', 'image/png', 'image/webp'];
-const IMAGE_FILE_FILTER = (
-  _req: any,
-  file: Express.Multer.File,
-  cb: (error: Error | null, acceptFile: boolean) => void,
-) => {
-  if (ALLOWED_IMAGE_MIMETYPES.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(
-      new BadRequestException(
-        `Invalid file type "${file.mimetype}". Only JPEG, PNG, and WEBP are allowed.`,
-      ),
-      false,
-    );
-  }
-};
 
 const COVER_IMAGE_INTERCEPTOR = FileInterceptor('coverImage', {
   storage: memoryStorage(),
