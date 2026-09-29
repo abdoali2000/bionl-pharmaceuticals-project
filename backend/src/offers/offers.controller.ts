@@ -89,6 +89,22 @@ export class OffersController {
   }
 
   /**
+   * GET /admin/offers/:id
+   * Returns a single offer by ID (all fields, including cloudinaryPublicId).
+   * Used by the frontend edit form to pre-populate fields.
+   */
+  @Get('admin/offers/:id')
+  @UseGuards(JwtAuthGuard)
+  async findOne(@Param('id', ParseUUIDPipe) id: string) {
+    const offer = await this.offersService.findOne(id);
+    return {
+      message: 'Offer retrieved successfully',
+      data: offer,
+      meta: null,
+    };
+  }
+
+  /**
    * POST /admin/offers
    * Create an offer. Accepts multipart/form-data.
    * Optional 'image' file is uploaded to Cloudinary 'bionl/offers'.

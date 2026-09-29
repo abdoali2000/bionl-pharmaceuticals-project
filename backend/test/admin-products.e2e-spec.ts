@@ -67,6 +67,15 @@ describe('Admin Products (e2e)', () => {
     await prisma.product.deleteMany({ where: { slug: 'test-product' } });
   });
 
+  // Reset mock call history before every test so that toHaveBeenCalledTimes
+  // assertions only count calls made within that specific test.
+  // mockClear() zeroes .mock.calls / .mock.instances but preserves the
+  // default mockResolvedValue / mockResolvedValueOnce implementations.
+  beforeEach(() => {
+    mockUploadFile.mockClear();
+    mockDeleteFile.mockClear();
+  });
+
   afterAll(async () => {
     // Primary cleanup: delete by id (set to '' after intentional delete test).
     if (productId) {
