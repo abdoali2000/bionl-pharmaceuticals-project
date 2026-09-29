@@ -73,6 +73,14 @@ export class OffersService {
     });
   }
 
+  /**
+   * Returns a single offer by ID, including all fields (cloudinaryPublicId).
+   * Throws NotFoundException when the ID does not exist.
+   */
+  async findOne(id: string) {
+    return this.findOneOrFail(id);
+  }
+
   // ---------------------------------------------------------------------------
   // Admin mutations
   // ---------------------------------------------------------------------------

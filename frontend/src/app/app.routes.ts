@@ -10,6 +10,8 @@ import { AdminProductFormComponent } from './features/admin/products/pages/admin
 import { ProductsPageComponent } from './features/products/pages/products-page/products-page.component';
 import { ProductDetailPageComponent } from './features/products/pages/product-detail-page/product-detail-page.component';
 import { OffersPageComponent } from './features/offers/pages/offers-page/offers-page.component';
+import { AdminOffersListComponent } from './features/admin/offers/pages/admin-offers-list/admin-offers-list.component';
+import { AdminOfferFormComponent } from './features/admin/offers/pages/admin-offer-form/admin-offer-form.component';
 
 export const routes: Routes = [
   // ─── Public routes ─────────────────────────────────────────────────────────
@@ -58,6 +60,22 @@ export const routes: Routes = [
       {
         path: 'products/:id/edit',
         component: AdminProductFormComponent,
+        canActivate: [adminAuthGuard]
+      },
+      // ─── Offer Management ──────────────────────────────────────────────────
+      {
+        path: 'offers',
+        component: AdminOffersListComponent,
+        canActivate: [adminAuthGuard]
+      },
+      {
+        path: 'offers/new',
+        component: AdminOfferFormComponent,
+        canActivate: [adminAuthGuard]
+      },
+      {
+        path: 'offers/edit/:id',
+        component: AdminOfferFormComponent,
         canActivate: [adminAuthGuard]
       }
     ]
