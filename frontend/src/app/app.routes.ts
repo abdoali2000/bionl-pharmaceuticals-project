@@ -12,6 +12,9 @@ import { ProductDetailPageComponent } from './features/products/pages/product-de
 import { OffersPageComponent } from './features/offers/pages/offers-page/offers-page.component';
 import { AdminOffersListComponent } from './features/admin/offers/pages/admin-offers-list/admin-offers-list.component';
 import { AdminOfferFormComponent } from './features/admin/offers/pages/admin-offer-form/admin-offer-form.component';
+import { ContactPageComponent } from './features/contact/pages/contact-page/contact-page.component';
+import { AdminContactListComponent } from './features/admin/contact/pages/admin-contact-list/admin-contact-list.component';
+import { AdminContactDetailComponent } from './features/admin/contact/pages/admin-contact-detail/admin-contact-detail.component';
 
 export const routes: Routes = [
   // ─── Public routes ─────────────────────────────────────────────────────────
@@ -24,7 +27,7 @@ export const routes: Routes = [
       { path: 'products/:slug', component: ProductDetailPageComponent },
       { path: 'about', component: DummyComponent },
       { path: 'offers', component: OffersPageComponent },
-      { path: 'contact', component: DummyComponent }
+      { path: 'contact', component: ContactPageComponent }
     ]
   },
   // ─── Admin routes ───────────────────────────────────────────────────────────
@@ -76,6 +79,17 @@ export const routes: Routes = [
       {
         path: 'offers/edit/:id',
         component: AdminOfferFormComponent,
+        canActivate: [adminAuthGuard]
+      },
+      // ─── Contact Messages ───────────────────────────────────────────────
+      {
+        path: 'contact',
+        component: AdminContactListComponent,
+        canActivate: [adminAuthGuard]
+      },
+      {
+        path: 'contact/:id',
+        component: AdminContactDetailComponent,
         canActivate: [adminAuthGuard]
       }
     ]
