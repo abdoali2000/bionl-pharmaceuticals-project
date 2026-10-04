@@ -2,13 +2,15 @@ import {
   Injectable,
   BadRequestException,
   InternalServerErrorException,
+  NotFoundException,
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { WebhookService } from '../webhook/webhook.service';
 import { CreateOrderDto } from './dto/create-order.dto';
-import { Order, OrderItem, PaymentProof } from '../../generated/prisma/client';
+import { GetOrdersQueryDto } from './dto/get-orders-query.dto';
+import { Order, OrderItem, PaymentProof, Prisma } from '../../generated/prisma/client';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -171,5 +173,77 @@ export class OrdersService {
     });
 
     return order;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Admin: list orders with optional filters
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Returns a paginated (V1: all) list of orders matching the given filters,
+   * ordered by createdAt DESC, with nested items and paymentProofs.
+   */
+  async findAllOrders(
+    query: GetOrdersQueryDto,
+  ): Promise<{ data: FullOrder[]; meta: { total: number } }> {
+    const where: Prisma.OrderWhereInput = {};
+
+    if (query.customerName) {
+      where.customerName = { contains: query.customerName, mode: 'insensitive' };
+    }
+
+    if (query.phoneNumber) {
+      where.phoneNumber = { contains: query.phoneNumber };
+    }
+
+    if (query.governorate) {
+      where.governorate = query.governorate;
+    }
+
+    if (query.paymentMethod) {
+      where.paymentMethod = query.paymentMethod;
+    }
+
+    // Date range — apply each boundary independently
+    if (query.dateFrom || query.dateTo) {
+      where.createdAt = {};
+      if (query.dateFrom) {
+        where.createdAt.gte = new Date(query.dateFrom);
+      }
+      if (query.dateTo) {
+        where.createdAt.lte = new Date(query.dateTo);
+      }
+    }
+
+    const include = { items: true, paymentProofs: true } as const;
+    const orderBy = { createdAt: 'desc' } as const;
+
+    const [orders, total] = await Promise.all([
+      this.prisma.order.findMany({ where, include, orderBy }),
+      this.prisma.order.count({ where }),
+    ]);
+
+    return { data: orders as FullOrder[], meta: { total } };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Admin: get a single order by UUID
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Returns a single order with its items and paymentProofs.
+   * Throws NotFoundException (404) when the ID does not exist.
+   */
+  async findOneOrder(id: string): Promise<FullOrder> {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      include: { items: true, paymentProofs: true },
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order with id "${id}" not found`);
+    }
+
+    return order as FullOrder;
   }
 }

@@ -1,9 +1,14 @@
 import {
   Controller,
   Post,
+  Get,
   Body,
+  Query,
+  Param,
+  ParseUUIDPipe,
   UploadedFiles,
   UseInterceptors,
+  UseGuards,
   BadRequestException,
   HttpCode,
   HttpStatus,
@@ -12,7 +17,9 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { GetOrdersQueryDto } from './dto/get-orders-query.dto';
 import { PROOF_FILE_FILTER } from './utils/proof-file-filter';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 // ---------------------------------------------------------------------------
 // Multer configuration for payment proof uploads
@@ -63,6 +70,45 @@ export class OrdersController {
 
     return {
       message: 'Order submitted successfully',
+      data: order,
+      meta: null,
+    };
+  }
+
+  // ── Admin endpoints ──────────────────────────────────────────────────────────
+
+  /**
+   * GET /api/admin/orders
+   *
+   * Admin only — requires a valid JWT cookie.
+   * Accepts optional query params: customerName, phoneNumber, governorate,
+   * paymentMethod, dateFrom, dateTo.
+   * Returns all matching orders ordered newest-first with nested items and proofs.
+   */
+  @Get('admin/orders')
+  @UseGuards(JwtAuthGuard)
+  async findAllOrders(@Query() query: GetOrdersQueryDto) {
+    const result = await this.ordersService.findAllOrders(query);
+    return {
+      message: 'Orders retrieved successfully',
+      data: result.data,
+      meta: result.meta,
+    };
+  }
+
+  /**
+   * GET /api/admin/orders/:id
+   *
+   * Admin only — requires a valid JWT cookie.
+   * Returns a single order by UUID with nested items and paymentProofs.
+   * Responds with 404 if the ID does not exist.
+   */
+  @Get('admin/orders/:id')
+  @UseGuards(JwtAuthGuard)
+  async findOneOrder(@Param('id', ParseUUIDPipe) id: string) {
+    const order = await this.ordersService.findOneOrder(id);
+    return {
+      message: 'Order retrieved successfully',
       data: order,
       meta: null,
     };
