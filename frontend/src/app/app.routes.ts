@@ -15,6 +15,8 @@ import { AdminOfferFormComponent } from './features/admin/offers/pages/admin-off
 import { ContactPageComponent } from './features/contact/pages/contact-page/contact-page.component';
 import { AdminContactListComponent } from './features/admin/contact/pages/admin-contact-list/admin-contact-list.component';
 import { AdminContactDetailComponent } from './features/admin/contact/pages/admin-contact-detail/admin-contact-detail.component';
+import { OrderFormPageComponent } from './features/orders/pages/order-form-page/order-form-page.component';
+import { OrderSuccessPageComponent } from './features/orders/pages/order-success-page/order-success-page.component';
 
 export const routes: Routes = [
   // ─── Public routes ─────────────────────────────────────────────────────────
@@ -27,7 +29,10 @@ export const routes: Routes = [
       { path: 'products/:slug', component: ProductDetailPageComponent },
       { path: 'about', component: DummyComponent },
       { path: 'offers', component: OffersPageComponent },
-      { path: 'contact', component: ContactPageComponent }
+      { path: 'contact', component: ContactPageComponent },
+      // ─── Order flow ───────────────────────────────────────────────────────────
+      { path: 'orders/checkout', component: OrderFormPageComponent },
+      { path: 'orders/success', component: OrderSuccessPageComponent }
     ]
   },
   // ─── Admin routes ───────────────────────────────────────────────────────────
