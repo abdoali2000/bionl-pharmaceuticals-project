@@ -16,6 +16,7 @@ import { ProductsService, PublicProduct } from '../../products.service';
 import { LanguageService } from '../../../../core/services/language.service';
 import { ImageGalleryComponent } from '../../../../shared/components/image-gallery/image-gallery.component';
 import { ProductCardComponent } from '../../../../shared/components/product-card/product-card.component';
+import { CartService } from '../../../../core/services/cart.service';
 
 type PageState = 'loading' | 'loaded' | 'not-found' | 'error';
 
@@ -370,6 +371,19 @@ type PageState = 'loading' | 'loaded' | 'not-found' | 'error';
               <p class="info-text">{{ displayUsage() }}</p>
             </div>
           }
+
+          <!-- Add to Cart button -->
+          <hr class="section-divider" />
+          <p-button
+            id="add-to-cart-btn"
+            [label]="addedToCart()
+              ? (isAr() ? '✓ تمت الإضافة' : '✓ Added to Cart')
+              : (isAr() ? 'أضف إلى السلة' : 'Add to Cart')"
+            [icon]="addedToCart() ? 'pi pi-check' : 'pi pi-shopping-cart'"
+            [severity]="addedToCart() ? 'success' : 'primary'"
+            styleClass="p-button-lg w-full"
+            (click)="onAddToCart()"
+          />
         </div>
       </div>
 
@@ -398,12 +412,14 @@ export class ProductDetailPageComponent implements OnInit {
   private productsService = inject(ProductsService);
   private destroyRef = inject(DestroyRef);
   private platformId = inject(PLATFORM_ID);
+  private cartService = inject(CartService);
 
   readonly isAr = this.langService.currentLang;
 
   readonly pageState = signal<PageState>('loading');
   readonly product = signal<PublicProduct | null>(null);
   readonly relatedProducts = signal<PublicProduct[]>([]);
+  readonly addedToCart = signal(false);
 
   // ── Computed bilingual display values ──────────────────────────────────────
 
@@ -439,6 +455,20 @@ export class ProductDetailPageComponent implements OnInit {
         const slug = params.get('slug') ?? '';
         this.load(slug);
       });
+  }
+
+  onAddToCart(): void {
+    const p = this.product();
+    if (!p) return;
+    this.cartService.addToCart({
+      productId: p.id,
+      productNameAr: p.nameAr,
+      productNameEn: p.nameEn,
+      price: p.price,
+      coverImageUrl: p.coverImageUrl,
+    });
+    this.addedToCart.set(true);
+    setTimeout(() => this.addedToCart.set(false), 2500);
   }
 
   load(slug?: string): void {
