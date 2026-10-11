@@ -69,7 +69,6 @@ const PAYMENT_METHODS: PaymentMethod[] = [
   { value: 'VODAFONE_CASH', labelAr: 'فودافون كاش',     labelEn: 'Vodafone Cash', icon: '📱' },
   { value: 'ORANGE_CASH',   labelAr: 'أورنج كاش',       labelEn: 'Orange Cash',   icon: '📱' },
   { value: 'ETISALAT_CASH', labelAr: 'اتصالات كاش',     labelEn: 'Etisalat Cash', icon: '📱' },
-  { value: 'BANK_TRANSFER', labelAr: 'تحويل بنكي',      labelEn: 'Bank Transfer', icon: '🏦' },
 ];
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -521,7 +520,7 @@ type SubmitState = 'idle' | 'loading' | 'error';
                 />
                 @if (isInvalid('customerName')) {
                   <span class="field-error">
-                    {{ isAr() === 'ar' ? 'الاسم مطلوب (3 أحرف على الأقل)' : 'Name is required (min 3 characters)' }}
+                    {{ getFieldError('customerName') || (isAr() === 'ar' ? 'الاسم مطلوب (3 أحرف على الأقل)' : 'Name is required (min 3 characters)') }}
                   </span>
                 }
               </div>
@@ -545,9 +544,9 @@ type SubmitState = 'idle' | 'loading' | 'error';
                 />
                 @if (isInvalid('phoneNumber')) {
                   <span class="field-error">
-                    {{ isAr() === 'ar'
+                    {{ getFieldError('phoneNumber') || (isAr() === 'ar'
                       ? 'أدخل رقم هاتف مصري صحيح (11 رقم)'
-                      : 'Enter a valid Egyptian phone number (11 digits)' }}
+                      : 'Enter a valid Egyptian phone number (11 digits)') }}
                   </span>
                 }
               </div>
@@ -573,7 +572,7 @@ type SubmitState = 'idle' | 'loading' | 'error';
                 />
                 @if (isInvalid('email')) {
                   <span class="field-error">
-                    {{ isAr() === 'ar' ? 'أدخل بريدًا إلكترونيًا صحيحًا' : 'Enter a valid email address' }}
+                    {{ getFieldError('email') || (isAr() === 'ar' ? 'أدخل بريدًا إلكترونيًا صحيحًا' : 'Enter a valid email address') }}
                   </span>
                 }
               </div>
@@ -609,7 +608,7 @@ type SubmitState = 'idle' | 'loading' | 'error';
                 </select>
                 @if (isInvalid('governorate')) {
                   <span class="field-error">
-                    {{ isAr() === 'ar' ? 'اختر المحافظة' : 'Please select a governorate' }}
+                    {{ getFieldError('governorate') || (isAr() === 'ar' ? 'اختر المحافظة' : 'Please select a governorate') }}
                   </span>
                 }
               </div>
@@ -630,7 +629,7 @@ type SubmitState = 'idle' | 'loading' | 'error';
                 />
                 @if (isInvalid('cityOrCenterOrVillage')) {
                   <span class="field-error">
-                    {{ isAr() === 'ar' ? 'هذا الحقل مطلوب' : 'This field is required' }}
+                    {{ getFieldError('cityOrCenterOrVillage') || (isAr() === 'ar' ? 'هذا الحقل مطلوب' : 'This field is required') }}
                   </span>
                 }
               </div>
@@ -653,7 +652,7 @@ type SubmitState = 'idle' | 'loading' | 'error';
                 ></textarea>
                 @if (isInvalid('address')) {
                   <span class="field-error">
-                    {{ isAr() === 'ar' ? 'أدخل عنوانك بالتفصيل' : 'Please enter your full address' }}
+                    {{ getFieldError('address') || (isAr() === 'ar' ? 'أدخل عنوانك بالتفصيل' : 'Please enter your full address') }}
                   </span>
                 }
               </div>
@@ -706,7 +705,7 @@ type SubmitState = 'idle' | 'loading' | 'error';
             </div>
             @if (isInvalid('paymentMethod')) {
               <span class="field-error" style="margin-top:0.625rem;display:block">
-                {{ isAr() === 'ar' ? 'اختر طريقة الدفع' : 'Please select a payment method' }}
+                {{ getFieldError('paymentMethod') || (isAr() === 'ar' ? 'اختر طريقة الدفع' : 'Please select a payment method') }}
               </span>
             }
           </div>
@@ -771,7 +770,7 @@ type SubmitState = 'idle' | 'loading' | 'error';
           @if (submitState() === 'error') {
             <div class="error-banner" style="margin-bottom: 1.5rem;" role="alert">
               <span class="error-banner-icon">⚠️</span>
-              <p class="error-banner-text">{{ errorMessage() }}</p>
+              <p class="error-banner-text" style="white-space: pre-line; margin: 0;">{{ errorMessage() }}</p>
             </div>
           }
 
@@ -835,6 +834,10 @@ export class OrderFormPageComponent implements OnInit {
     paymentMethod: ['', [Validators.required]],
   });
 
+  get orderForm() {
+    return this.form;
+  }
+
   ngOnInit(): void {}
 
   // ── Helpers ───────────────────────────────────────────────────────────────
@@ -842,6 +845,12 @@ export class OrderFormPageComponent implements OnInit {
   isInvalid(name: string): boolean {
     const ctrl = this.form.get(name);
     return !!(ctrl && ctrl.invalid && (ctrl.dirty || ctrl.touched));
+  }
+
+  getFieldError(name: string): string | null {
+    const ctrl = this.form.get(name);
+    if (!ctrl || !ctrl.errors || (!ctrl.dirty && !ctrl.touched)) return null;
+    return ctrl.errors['serverError'] || null;
   }
 
   // ── File handling ─────────────────────────────────────────────────────────
@@ -932,7 +941,53 @@ export class OrderFormPageComponent implements OnInit {
         },
         error: (err: HttpErrorResponse) => {
           this.submitState.set('error');
-          if (err.error?.message) {
+
+          const errorsArray = err.error?.data?.errors;
+          if (Array.isArray(errorsArray) && errorsArray.length > 0) {
+            const detailedMessages: string[] = [];
+
+            for (const item of errorsArray) {
+              const msg: string = typeof item === 'string' ? item : item.message || '';
+              const explicitField: string = typeof item === 'object' && item !== null
+                ? (item.field || item.property || item.path || '')
+                : '';
+
+              let targetField = explicitField;
+              if (!targetField) {
+                const knownFields = [
+                  'customerName',
+                  'phoneNumber',
+                  'email',
+                  'governorate',
+                  'cityOrCenterOrVillage',
+                  'address',
+                  'notes',
+                  'paymentMethod',
+                  'paymentProofs',
+                ];
+                targetField = knownFields.find(f => msg.toLowerCase().includes(f.toLowerCase())) || '';
+              }
+
+              if (targetField === 'paymentProofs') {
+                this.fileError.set(msg);
+              } else if (targetField && this.orderForm.get(targetField)) {
+                const ctrl = this.orderForm.get(targetField)!;
+                ctrl.setErrors({ serverError: msg });
+                ctrl.markAsTouched();
+              }
+
+              if (msg) {
+                detailedMessages.push(`• ${msg}`);
+              }
+            }
+
+            if (detailedMessages.length > 0) {
+              this.errorMessage.set(detailedMessages.join('\n'));
+              return;
+            }
+          }
+
+          if (err.error?.message && err.error.message !== 'Validation failed') {
             this.errorMessage.set(err.error.message);
           } else if (err.status === 0) {
             this.errorMessage.set(
@@ -943,8 +998,8 @@ export class OrderFormPageComponent implements OnInit {
           } else {
             this.errorMessage.set(
               this.isAr() === 'ar'
-                ? 'حدث خطأ أثناء إرسال الطلب. أعد المحاولة.'
-                : 'An error occurred while submitting your order. Please try again.'
+                ? 'حدث خطأ أثناء إرسال الطلب. يرجى التحقق من صحة البيانات والمحاولة مجددًا.'
+                : 'Validation failed. Please verify your data and try again.'
             );
           }
         },
