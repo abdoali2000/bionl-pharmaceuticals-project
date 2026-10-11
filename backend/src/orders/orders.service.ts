@@ -197,7 +197,37 @@ export class OrdersService {
     }
 
     if (query.governorate) {
-      where.governorate = query.governorate;
+      const govAliases: Record<string, string[]> = {
+        'Cairo': ['Cairo', 'القاهرة'],
+        'Giza': ['Giza', 'الجيزة'],
+        'Alexandria': ['Alexandria', 'الإسكندرية'],
+        'Dakahlia': ['Dakahlia', 'الدقهلية'],
+        'Red Sea': ['Red Sea', 'البحر الأحمر'],
+        'Beheira': ['Beheira', 'البحيرة'],
+        'Faiyum': ['Faiyum', 'الفيوم'],
+        'Gharbia': ['Gharbia', 'الغربية'],
+        'Ismailia': ['Ismailia', 'الإسماعيلية'],
+        'Menofia': ['Menofia', 'Menoufia', 'المنوفية'],
+        'Minya': ['Minya', 'المنيا'],
+        'Qaliubiya': ['Qaliubiya', 'Qalyubia', 'القليوبية'],
+        'New Valley': ['New Valley', 'الوادي الجديد'],
+        'Suez': ['Suez', 'السويس'],
+        'Aswan': ['Aswan', 'أسوان'],
+        'Assiut': ['Assiut', 'Asyut', 'أسيوط'],
+        'Beni Suef': ['Beni Suef', 'بني سويف'],
+        'Port Said': ['Port Said', 'بورسعيد'],
+        'Damietta': ['Damietta', 'دمياط'],
+        'Sharkia': ['Sharkia', 'Sharqia', 'الشرقية'],
+        'South Sinai': ['South Sinai', 'جنوب سيناء'],
+        'Kafr El Sheikh': ['Kafr El Sheikh', 'Kafr el-Sheikh', 'كفر الشيخ'],
+        'Matrouh': ['Matrouh', 'مطروح'],
+        'Luxor': ['Luxor', 'الأقصر'],
+        'Qena': ['Qena', 'قنا'],
+        'North Sinai': ['North Sinai', 'شمال سيناء', 'العريش / شمال سيناء'],
+        'Sohag': ['Sohag', 'سوهاج'],
+      };
+      const aliases = govAliases[query.governorate] || [query.governorate];
+      where.governorate = { in: aliases };
     }
 
     if (query.paymentMethod) {

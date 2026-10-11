@@ -176,6 +176,15 @@ import { ContactService } from '../../features/contact/contact.service';
 
             <a
               class="nav-link"
+              routerLink="/admin/orders"
+              routerLinkActive="active-link"
+            >
+              <i class="pi pi-shopping-bag"></i>
+              <span class="nav-label">{{ isAr() ? 'الطلبات' : 'Orders' }}</span>
+            </a>
+
+            <a
+              class="nav-link"
               routerLink="/admin/categories"
               routerLinkActive="active-link"
             >

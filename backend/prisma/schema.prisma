@@ -17,6 +17,8 @@ datasource db {
 enum PaymentMethod {
   INSTAPAY
   VODAFONE_CASH
+  ORANGE_CASH
+  ETISALAT_CASH
 }
 
 // ---------------------------------------------------------------------------

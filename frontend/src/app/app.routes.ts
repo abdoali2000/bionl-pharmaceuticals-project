@@ -17,6 +17,9 @@ import { AdminContactListComponent } from './features/admin/contact/pages/admin-
 import { AdminContactDetailComponent } from './features/admin/contact/pages/admin-contact-detail/admin-contact-detail.component';
 import { OrderFormPageComponent } from './features/orders/pages/order-form-page/order-form-page.component';
 import { OrderSuccessPageComponent } from './features/orders/pages/order-success-page/order-success-page.component';
+import { AdminOrdersListComponent } from './features/admin/orders/pages/admin-orders-list/admin-orders-list.component';
+import { AdminOrderDetailComponent } from './features/admin/orders/pages/admin-order-detail/admin-order-detail.component';
+
 
 export const routes: Routes = [
   // ─── Public routes ─────────────────────────────────────────────────────────
@@ -95,6 +98,17 @@ export const routes: Routes = [
       {
         path: 'contact/:id',
         component: AdminContactDetailComponent,
+        canActivate: [adminAuthGuard]
+      },
+      // ─── Order Management ───────────────────────────────────────────────────
+      {
+        path: 'orders',
+        component: AdminOrdersListComponent,
+        canActivate: [adminAuthGuard]
+      },
+      {
+        path: 'orders/:id',
+        component: AdminOrderDetailComponent,
         canActivate: [adminAuthGuard]
       }
     ]
