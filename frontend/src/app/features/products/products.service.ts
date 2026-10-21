@@ -44,7 +44,7 @@ export interface ApiResponse<T> {
 
 export interface ProductsQuery {
   search?: string;
-  categoryId?: string;
+  category?: string;
   minPrice?: number;
   maxPrice?: number;
 }
@@ -81,7 +81,7 @@ export class ProductsService {
 
     let params = new HttpParams();
     if (query.search?.trim())            params = params.set('search', query.search.trim());
-    if (query.categoryId)                params = params.set('categoryId', query.categoryId);
+    if (query.category)                  params = params.set('category', query.category);
     if (query.minPrice != null)          params = params.set('minPrice', String(query.minPrice));
     if (query.maxPrice != null)          params = params.set('maxPrice', String(query.maxPrice));
 
