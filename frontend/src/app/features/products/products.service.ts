@@ -35,6 +35,15 @@ export interface PublicProduct {
   images: PublicProductImage[];
 }
 
+export type PublicProductSummary = Pick<
+  PublicProduct,
+  'id' | 'slug' | 'nameAr' | 'nameEn' | 'price' | 'coverImageUrl'
+>;
+
+export interface PublicProductDetail extends PublicProduct {
+  relatedProducts: PublicProductSummary[];
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   message: string;
@@ -98,20 +107,7 @@ export class ProductsService {
   }
 
   /** GET /products/:slug — fetches a single product for the detail page. */
-  getProductBySlug(slug: string): Observable<ApiResponse<PublicProduct>> {
-    return this.api.get<ApiResponse<PublicProduct>>(`/products/${encodeURIComponent(slug)}`);
-  }
-
-  /**
-   * GET /products — fetch up to `limit` products from the same category,
-   * excluding the current product. Used for the related products row.
-   * Returns a plain Observable; the caller manages its own local state.
-   */
-  loadRelatedProducts(categoryId: string, excludeSlug: string, limit = 4): Observable<ApiResponse<PublicProduct[]>> {
-    const params = new HttpParams()
-      .set('categoryId', categoryId)
-      .set('limit', String(limit + 1)); // fetch one extra so we can exclude current
-
-    return this.api.get<ApiResponse<PublicProduct[]>>('/products', params);
+  getProductBySlug(slug: string): Observable<ApiResponse<PublicProductDetail>> {
+    return this.api.get<ApiResponse<PublicProductDetail>>(`/products/${encodeURIComponent(slug)}`);
   }
 }

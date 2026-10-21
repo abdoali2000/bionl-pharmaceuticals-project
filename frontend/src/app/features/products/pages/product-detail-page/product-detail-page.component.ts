@@ -12,7 +12,7 @@ import { Skeleton } from 'primeng/skeleton';
 import { Button } from 'primeng/button';
 
 // App
-import { ProductsService, PublicProduct } from '../../products.service';
+import { ProductsService, PublicProduct, PublicProductSummary } from '../../products.service';
 import { LanguageService } from '../../../../core/services/language.service';
 import { ImageGalleryComponent } from '../../../../shared/components/image-gallery/image-gallery.component';
 import { ProductCardComponent } from '../../../../shared/components/product-card/product-card.component';
@@ -418,7 +418,7 @@ export class ProductDetailPageComponent implements OnInit {
 
   readonly pageState = signal<PageState>('loading');
   readonly product = signal<PublicProduct | null>(null);
-  readonly relatedProducts = signal<PublicProduct[]>([]);
+  readonly relatedProducts = signal<PublicProductSummary[]>([]);
   readonly addedToCart = signal(false);
 
   // ── Computed bilingual display values ──────────────────────────────────────
@@ -491,7 +491,11 @@ export class ProductDetailPageComponent implements OnInit {
           this.product.set(p);
           this.pageState.set('loaded');
           this.setMeta(p);
-          this.loadRelated(p);
+          this.relatedProducts.set(
+            (p.relatedProducts ?? [])
+              .filter(related => related.id !== p.id && related.slug !== p.slug)
+              .slice(0, 4)
+          );
         },
         error: err => {
           if (err?.status === 404) {
@@ -527,27 +531,4 @@ export class ProductDetailPageComponent implements OnInit {
     this.metaService.updateTag({ name: 'robots', content: 'noindex' });
   }
 
-  // ── Related products ────────────────────────────────────────────────────────
-
-  private loadRelated(p: PublicProduct): void {
-    if (p.categories.length === 0) return;
-
-    // Use the first category to find related products
-    const firstCategoryId = p.categories[0].id;
-
-    this.productsService.loadRelatedProducts(firstCategoryId, p.slug, 4)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: res => {
-          const filtered = (res.data ?? [])
-            .filter(related => related.slug !== p.slug)
-            .slice(0, 4);
-          this.relatedProducts.set(filtered);
-        },
-        error: () => {
-          // Related products are non-critical — silently ignore errors
-          this.relatedProducts.set([]);
-        }
-      });
-  }
 }

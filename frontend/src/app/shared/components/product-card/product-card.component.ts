@@ -2,7 +2,7 @@ import { Component, Input, computed, inject } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../../core/services/language.service';
-import { PublicProduct } from '../../../features/products/products.service';
+import { PublicCategory, PublicProductSummary } from '../../../features/products/products.service';
 
 @Component({
   selector: 'app-product-card',
@@ -109,9 +109,9 @@ import { PublicProduct } from '../../../features/products/products.service';
       <!-- Body -->
       <div class="card-body" [attr.dir]="isAr() ? 'rtl' : 'ltr'">
         <!-- Category badges -->
-        @if (product.categories.length > 0) {
+        @if (product.categories?.length) {
           <div class="card-categories">
-            @for (cat of product.categories.slice(0, 3); track cat.id) {
+            @for (cat of product.categories?.slice(0, 3); track cat.id) {
               <span class="category-badge">
                 {{ isAr() ? cat.nameAr : cat.nameEn }}
               </span>
@@ -131,7 +131,7 @@ import { PublicProduct } from '../../../features/products/products.service';
   `
 })
 export class ProductCardComponent {
-  @Input({ required: true }) product!: PublicProduct;
+  @Input({ required: true }) product!: PublicProductSummary & { categories?: PublicCategory[] };
 
   private langService = inject(LanguageService);
   readonly isAr = this.langService.currentLang;
