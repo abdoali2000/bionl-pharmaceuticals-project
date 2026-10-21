@@ -11,8 +11,8 @@ Purpose: execute the remaining work in small, reviewable tasks without changing 
 - [Audit report](06-project-audit-2026-10-20.md) records the findings behind the repair tasks. Its original language and contents are preserved.
 - Referenced original AC still apply unless a scope change is explicitly agreed. A repair task does not imply rebuilding the entire original feature.
 - All new task text, technical documentation, code comments, branch names, and commit messages must be in English. Arabic is used for conversation and for intended Arabic product content and interface text.
-- **Do not modify any file that existed when this completion backlog was created without asking the user first.** Before each implementation group, identify the existing files to change and request approval for that scope. Approval to create this document does not authorize implementation changes.
-- Approval for a defined group covers its stated changes; ask again when an additional existing file or a material scope change is needed. Do not repeatedly request approval for the same approved scope.
+- **Authorization updated on 2026-10-22:** The user approved any file changes related to tasks in this completion backlog. Proceed with necessary in-scope implementation, tests, branch creation, commits, and tracking updates without requesting approval for each file. This supersedes the earlier per-file approval requirement for these tasks.
+- Keep changes within the selected task/group and explain material scope changes. The current execution request is to finish G01; it does not automatically start later groups. Work outside the completion plan, final design selection, and publication remain separate user decisions.
 - Do not translate or edit the existing audit, README, requirements, or original backlog as part of creating this document.
 - Branches and commit messages below are proposals. No branch, commit, or application change is created by this plan.
 - Creating this plan does not automatically start its implementation. The first proposed implementation group is G01.
@@ -26,7 +26,7 @@ Keep tracking lightweight: update status and add a short verification note with 
 ### Execution cycle
 
 1. Select the next group whose dependencies are satisfied and recheck the relevant finding against current code.
-2. Explain the expected result and proposed existing-file changes; obtain the approval required above.
+2. Explain the expected result and proposed changes; proceed under the recorded authorization for in-plan tasks. Obtain a separate decision only for work outside that authorization or an explicit design/publication checkpoint.
 3. Create the group's branch from the agreed, updated base. Keep unrelated user work out of its commits.
 4. Execute one task at a time. Use the suggested commit message, adjusted to the actual change; do not create empty or artificial commits.
 5. Run focused checks and the group's exit checks. Record results, actual branch, and commit references here.
@@ -77,8 +77,8 @@ On 2026-10-22, the user deferred customer-facing category filtering and search f
 
 - Do not block progress or release acceptance on creating category fixtures or manually accepting the category filter. Local read-only API inspection found zero categories and two products without category associations; absent category controls are expected with that data.
 - FIX-PRD-01 remains completed with its recorded automated evidence; live manual acceptance was not performed. Do not revert the fix or delete existing functionality as part of this scope decision.
-- The approved design may omit customer search and category-filter controls. Any application-file changes to implement that design still require the user's existing-file approval.
-- Admin category management, category-based related products, and the separate price-filter task are unchanged by this decision. FIX-PRD-02 and FIX-PRD-03 remain TODO; do not mark them complete or deferred by inference.
+- The approved design may omit customer search and category-filter controls. Implement the selected design under the in-plan authorization in Section 1; final direction selection remains the user's decision.
+- Admin category management, category-based related products, and the separate price-filter task are unchanged by this decision. Related-product and zero-price task statuses are tracked individually below; deferring public category search did not defer those repairs.
 - The original backlog and audit remain unchanged. Original search/category-filter AC are no longer release gates for the deferred public features; regression checks still apply if those features are retained in the accepted interface.
 
 ## 4. Functional fixes
@@ -102,7 +102,7 @@ On 2026-10-22, the user deferred customer-facing category filtering and search f
 
 ### FIX-PRD-02 — Use related products returned by product details
 
-- **Status:** TODO
+- **Status:** DONE
 - **Reference:** EP-03-01, EP-03-06.
 - **Objective:** Restore related products without unsupported `categoryId` or `limit` requests.
 - **Scope:** Product-detail response types and related-products rendering; use the existing API response.
@@ -111,15 +111,15 @@ On 2026-10-22, the user deferred customer-facing category filtering and search f
 - **Branch:** G01.
 - **Suggested commit:** `fix(products): use related products from the detail response`
 - **Acceptance criteria:**
-  - [ ] Up to four related products render from the detail response, excluding the current product.
-  - [ ] No redundant related-products request sends unsupported query parameters.
-  - [ ] Empty related results leave a clean page state.
-  - [ ] Navigating between related products refreshes the selected product and related section.
-- **Verification:** Pending.
+  - [x] Up to four related products render from the detail response, excluding the current product.
+  - [x] No redundant related-products request sends unsupported query parameters.
+  - [x] Empty related results leave a clean page state.
+  - [x] Navigating between related products refreshes the selected product and related section.
+- **Verification:** Completed on 2026-10-22 in commit `2f5d7f0` (`fix(products): use related products from the detail response`). Four routed detail-page tests pass using Angular's HTTP testing backend; three failed before the repair. Checks cover summary cards without category arrays, a maximum of four cards excluding the current product, empty responses with/without categories, and related-link navigation clearing stale cards and loading the new response. The obsolete secondary API request was removed; backend behavior and recommendation rules are unchanged. Application TypeScript check passed. No live category fixtures were added.
 
 ### FIX-PRD-03 — Preserve zero-valued price filters
 
-- **Status:** TODO
+- **Status:** DONE
 - **Reference:** EP-03-01, EP-03-05.
 - **Objective:** Treat zero as an entered price rather than an empty field.
 - **Scope:** Price input normalization, URL state, and request construction.
@@ -128,10 +128,10 @@ On 2026-10-22, the user deferred customer-facing category filtering and search f
 - **Branch:** G01.
 - **Suggested commit:** `fix(products): preserve zero-valued price filters`
 - **Acceptance criteria:**
-  - [ ] Zero remains active in price inputs, URLs, and API requests.
-  - [ ] Empty input removes the filter; clearing and reloading preserve the intended state.
-  - [ ] Regression coverage distinguishes zero from null and empty values.
-- **Verification:** Pending.
+  - [x] Zero remains active in price inputs, URLs, and API requests.
+  - [x] Empty input removes the filter; clearing and reloading preserve the intended state.
+  - [x] Regression coverage distinguishes zero from null and empty values.
+- **Verification:** Completed on 2026-10-22 in commit `b76c1d5` (`fix(products): preserve zero-valued price filters`). Three additional routed price-filter cases pass: zero typed into minimum and maximum inputs is retained in requests and URLs; empty inputs remove the corresponding filter while preserving search/category; direct URLs restore both zero bounds, and explicit clearing removes them. Two cases failed before the repair. All G01 tests pass: `npm.cmd test -- --watch=false --include=src/app/features/products/**/*.spec.ts` from `frontend/` reports 14 passed across 3 files. `node_modules/.bin/tsc.cmd --project tsconfig.app.json --noEmit` also passes. A read-only live API check was unavailable because localhost:3000 refused the connection; no live database claim is made. The known scaffold-test and production bundle issues remain assigned to STAB-FE-03 and were not rerun or declared fixed.
 
 ### FIX-AUTH-01 — Enforce login request throttling
 
@@ -539,16 +539,22 @@ On 2026-10-22, the user deferred customer-facing category filtering and search f
 - **Acceptance criteria:**
   - [ ] New handoff links every completion task to verification or a named unresolved blocker.
   - [ ] Original requirements are reconciled through explicit decisions; deferred scope is agreed rather than silently dropped.
-  - [ ] Any edits to old files have separate, recorded user approval; declined edits are noted in the new handoff.
+  - [ ] Edits to old files stay within the recorded in-plan authorization in Section 1; changes outside it have separate approval, and declined changes are noted in the new handoff.
   - [ ] No completion percentage or release-ready statement substitutes for outstanding checks or approvals.
 - **Verification:** Pending.
 
-## 9. Next implementation checkpoint
+## 9. Group completion and next checkpoint
 
-**G01 / FIX-PRD-01 is complete** in commit `9b14d4e`. G01 remains open: **FIX-PRD-02** (related products) and **FIX-PRD-03** (zero-valued price filters) are still TODO. Continue on the same group branch, `codex/fix-product-browsing`, with a separate implementation commit for each task.
+**G01 is complete: all three tasks are DONE**, with focused automated checks passing on `codex/fix-product-browsing`.
 
-The proposed next action is **FIX-PRD-02**. Before changing its implementation, inspect the product service, product-detail page, response contract, and relevant tests; present the exact existing-file change list and obtain user approval for that scope. The approval recorded for FIX-PRD-01 does not extend to these additional changes.
+| Task | Implementation commit | Result |
+|---|---|---|
+| FIX-PRD-01 | `9b14d4e` | Category query contract and URL state repaired |
+| FIX-PRD-02 | `2f5d7f0` | Related cards use the existing detail response |
+| FIX-PRD-03 | `b76c1d5` | Zero-valued price bounds are preserved |
 
-Manual category-filter acceptance is deferred by the small-catalog decision above and does not block this next action. This decision does not itself authorize implementation of FIX-PRD-02.
+Group verification: 14 tests passed across 3 product test files, application TypeScript check passed, and Git whitespace checks passed. Manual category-filter acceptance remains deferred by the small-catalog decision. No new production-build, full-suite, live database, or browser-visual acceptance is claimed. Original reference files and application data were not modified by this group beyond its authorized implementation files.
 
-Design selection and final publication are explicit user decisions. Other implementation groups also require the existing-file approval described in Section 1 until the user changes that instruction.
+G01 implementation completion is separate from push, review, and integration. No push or merge was performed by the assistant. Before starting G02, confirm the agreed integration/base branch and inspect the current auth code. The proposed next group is **G02 / FIX-AUTH-01 and FIX-AUTH-02** on `codex/fix-admin-auth`; it has not been started.
+
+The user's authorization in Section 1 covers necessary file changes for tasks in this completion plan without repeated file-by-file permission requests. Design selection, publication, and work outside the plan remain explicit user decisions.
