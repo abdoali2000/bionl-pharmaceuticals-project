@@ -71,6 +71,16 @@ Work in the order below by default. Dependencies identify actual technical gates
 
 Review checkpoints: G03 technical baseline; G07 direction selection; G09 first complete public page; G14 release acceptance. These are review points, not permission to publish.
 
+### Current scope decision — Small public catalog
+
+On 2026-10-22, the user deferred customer-facing category filtering and search for the current release because the expected catalog contains approximately seven or eight products. Favor a simple, directly browsable product list in the forthcoming design.
+
+- Do not block progress or release acceptance on creating category fixtures or manually accepting the category filter. Local read-only API inspection found zero categories and two products without category associations; absent category controls are expected with that data.
+- FIX-PRD-01 remains completed with its recorded automated evidence; live manual acceptance was not performed. Do not revert the fix or delete existing functionality as part of this scope decision.
+- The approved design may omit customer search and category-filter controls. Any application-file changes to implement that design still require the user's existing-file approval.
+- Admin category management, category-based related products, and the separate price-filter task are unchanged by this decision. FIX-PRD-02 and FIX-PRD-03 remain TODO; do not mark them complete or deferred by inference.
+- The original backlog and audit remain unchanged. Original search/category-filter AC are no longer release gates for the deferred public features; regression checks still apply if those features are retained in the accepted interface.
+
 ## 4. Functional fixes
 
 ### FIX-PRD-01 — Align category filtering with the public API
@@ -352,14 +362,14 @@ Review checkpoints: G03 technical baseline; G07 direction selection; G09 first c
 - **Status:** TODO
 - **Reference:** EP-08-01 and its original AC.
 - **Objective:** Replace the root placeholder with the first complete, approved public page.
-- **Scope:** Approved hero, API-driven categories/products/active offers, company highlights, and contact/WhatsApp actions. Use the existing first-4-to-6-product approach unless editorial selection is separately agreed.
+- **Scope:** Approved hero, API-driven products/active offers, company highlights, and contact/WhatsApp actions. A category overview and category-filter links are optional under the small-catalog scope decision. Use the existing first-4-to-6-product approach unless editorial selection is separately agreed.
 - **Out of scope:** A CMS, featured-product schema changes, or invented company statistics.
 - **Dependencies:** G01, UI-BASE-02, required approved content.
 - **Branch:** G09.
 - **Suggested commit:** `feat(home): build the API-driven home page`
 - **Acceptance criteria:**
   - [ ] Real API content renders server-side under the chosen policy; loading, error, and empty states work.
-  - [ ] Category links use the supported slug filter; inactive/absent offers are not promoted.
+  - [ ] Inactive/absent offers are not promoted. If the approved design retains category links, they use the supported slug filter; such links are not required for this release.
   - [ ] Contact and WhatsApp actions use confirmed destinations.
   - [ ] User review accepts the Arabic mobile and desktop implementation before the direction is propagated to remaining pages.
 - **Verification:** Pending.
@@ -385,14 +395,14 @@ Review checkpoints: G03 technical baseline; G07 direction selection; G09 first c
 - **Status:** TODO
 - **Reference:** EP-03-05, EP-03-06, EP-06-02, EP-07-02 and their original AC.
 - **Objective:** Make the existing public pages visually consistent while preserving functionality.
-- **Scope:** Cards, filters, product gallery/content, offer cards, contact form, and shared feedback states. Deliver page-specific commits if the change is large.
+- **Scope:** Cards, product gallery/content, offer cards, contact form, and shared feedback states. Follow the small-catalog decision: public search/category filters are deferred and are not required in the approved design. Review any retained filters. Deliver page-specific commits if the change is large.
 - **Out of scope:** Rebuilding working APIs or changing business rules for visual convenience.
 - **Dependencies:** PAGE-01 accepted, PAGE-02, UI-BASE-01.
 - **Branch:** G11.
 - **Suggested commit:** `feat(public): apply the approved design to existing pages`
 - **Acceptance criteria:**
   - [ ] All four page areas use the approved shared patterns with no obvious legacy design conflict.
-  - [ ] Filtering, related products, gallery navigation, offers, contact validation, and retries retain expected behavior.
+  - [ ] Related products, gallery navigation, offers, contact validation, and retries retain expected behavior; any filters retained in the approved interface also work correctly.
   - [ ] Arabic/English and 375px/desktop checks cover populated, empty, loading, and error states.
 - **Verification:** Pending.
 
@@ -538,5 +548,7 @@ Review checkpoints: G03 technical baseline; G07 direction selection; G09 first c
 **G01 / FIX-PRD-01 is complete** in commit `9b14d4e`. G01 remains open: **FIX-PRD-02** (related products) and **FIX-PRD-03** (zero-valued price filters) are still TODO. Continue on the same group branch, `codex/fix-product-browsing`, with a separate implementation commit for each task.
 
 The proposed next action is **FIX-PRD-02**. Before changing its implementation, inspect the product service, product-detail page, response contract, and relevant tests; present the exact existing-file change list and obtain user approval for that scope. The approval recorded for FIX-PRD-01 does not extend to these additional changes.
+
+Manual category-filter acceptance is deferred by the small-catalog decision above and does not block this next action. This decision does not itself authorize implementation of FIX-PRD-02.
 
 Design selection and final publication are explicit user decisions. Other implementation groups also require the existing-file approval described in Section 1 until the user changes that instruction.
