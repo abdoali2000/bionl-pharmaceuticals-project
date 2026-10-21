@@ -473,12 +473,12 @@ export class ProductsPageComponent implements OnInit, OnDestroy {
   }
 
   onMinPriceChange(value: number | null): void {
-    this.minPrice.set(value === 0 ? null : value);
+    this.minPrice.set(value);
     this.syncUrlAndFetch();
   }
 
   onMaxPriceChange(value: number | null): void {
-    this.maxPrice.set(value === 0 ? null : value);
+    this.maxPrice.set(value);
     this.syncUrlAndFetch();
   }
 
