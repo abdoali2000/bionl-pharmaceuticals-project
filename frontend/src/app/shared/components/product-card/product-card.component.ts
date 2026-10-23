@@ -3,11 +3,12 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../../core/services/language.service';
 import { PublicCategory, PublicProductSummary } from '../../../features/products/products.service';
+import { RevealDirective } from '../../../features/brand/reveal.directive';
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, RouterLink, CurrencyPipe],
+  imports: [CommonModule, RouterLink, CurrencyPipe, RevealDirective],
   styles: [`
     :host { display: block; }
 
@@ -93,6 +94,7 @@ import { PublicCategory, PublicProductSummary } from '../../../features/products
   `],
   template: `
     <a
+      appReveal
       class="card"
       [routerLink]="['/products', product.slug]"
       [attr.aria-label]="displayName()"

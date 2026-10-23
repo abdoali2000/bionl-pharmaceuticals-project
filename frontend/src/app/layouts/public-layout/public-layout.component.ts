@@ -6,11 +6,20 @@ import { CartService } from '../../core/services/cart.service';
 import { LanguageService } from '../../core/services/language.service';
 import { TopBannerComponent } from '../../shared/components/top-banner/top-banner.component';
 import { CATALOG_PREVIEW } from '../../features/brand/catalog-preview';
+import { AmbientBackgroundComponent } from '../../features/brand/ambient-background.component';
 @Component({
   selector: 'app-public-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, CartDrawerComponent, TopBannerComponent],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    CartDrawerComponent,
+    TopBannerComponent,
+    AmbientBackgroundComponent,
+  ],
   template: `
+    <app-ambient-background />
     <a href="#main-content" class="skip-link">{{ t('انتقل إلى المحتوى', 'Skip to content') }}</a
     ><app-top-banner />
     <header class="brand-header">

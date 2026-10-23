@@ -5,11 +5,12 @@ import { LanguageService } from '../../core/services/language.service';
 import { ProductsService } from '../products/products.service';
 import { OffersService } from '../offers/offers.service';
 import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
+import { RevealDirective } from './reveal.directive';
 
 @Component({
   standalone: true,
   selector: 'app-brand-pages',
-  imports: [RouterLink, ProductCardComponent],
+  imports: [RouterLink, ProductCardComponent, RevealDirective],
   template: `
     @if (page === 'home') {
       <section class="brand-hero wrap">
@@ -80,7 +81,7 @@ import { ProductCardComponent } from '../../shared/components/product-card/produ
         </div>
       </div>
       <section class="wrap brand-section">
-        <div class="section-heading">
+        <div appReveal class="section-heading">
           <div>
             <span class="eyebrow">THE COLLECTION</span>
             <h2>{{ t('اختيارات تستحق أن تعرفها.', 'Meet your new essentials.') }}</h2>
@@ -101,7 +102,7 @@ import { ProductCardComponent } from '../../shared/components/product-card/produ
           </p>
         }
       </section>
-      <section class="wrap story-panel">
+      <section appReveal class="wrap story-panel">
         <div class="story-art">
           <span class="eyebrow">THE SCIENCE OF CARE</span>
           <div class="dna-art">
@@ -130,7 +131,7 @@ import { ProductCardComponent } from '../../shared/components/product-card/produ
         </div>
       </section>
       <section class="wrap brand-section">
-        <div class="section-heading">
+        <div appReveal class="section-heading">
           <div>
             <span class="eyebrow">A LITTLE EXTRA</span>
             <h2>{{ t('جديد يستحق المتابعة.', 'Something to look forward to.') }}</h2>
@@ -156,7 +157,7 @@ import { ProductCardComponent } from '../../shared/components/product-card/produ
         </div>
       </section>
     } @else if (page === 'products') {
-      <section class="wrap page-intro">
+      <section appReveal class="wrap page-intro">
         <span class="eyebrow">THE BIO NL COLLECTION</span>
         <h1>{{ t('عناية تناسب يومك.', 'Care for your everyday.') }}</h1>
         <p>
@@ -194,7 +195,7 @@ import { ProductCardComponent } from '../../shared/components/product-card/produ
         }
       </section>
     } @else if (page === 'about') {
-      <section class="wrap page-intro">
+      <section appReveal class="wrap page-intro">
         <span class="eyebrow">OUR WORLD</span>
         <h1>
           {{ t('الاهتمام بالتفاصيل.', 'Thoughtful by nature.') }}<br /><em>{{
@@ -210,7 +211,7 @@ import { ProductCardComponent } from '../../shared/components/product-card/produ
           }}
         </p>
       </section>
-      <section class="wrap story-panel">
+      <section appReveal class="wrap story-panel">
         <div class="about-logo">
           <img src="/brand/logo.png" alt="Bio NL Pharmaceuticals logo" /><span
             >BIO NL PHARMACEUTICALS</span
@@ -237,13 +238,13 @@ import { ProductCardComponent } from '../../shared/components/product-card/produ
         </div>
       </section>
       <section class="wrap brand-section">
-        <div class="section-heading">
+        <div appReveal class="section-heading">
           <div>
             <span class="eyebrow">WHAT MATTERS</span>
             <h2>{{ t('ثلاث أفكار تقرّبنا منك.', 'Three ideas that bring us closer.') }}</h2>
           </div>
         </div>
-        <div class="value-grid">
+        <div appReveal class="value-grid">
           @for (v of values; track v.en) {
             <article>
               <span class="value-number">0{{ $index + 1 }}</span
@@ -263,7 +264,7 @@ import { ProductCardComponent } from '../../shared/components/product-card/produ
         </p>
       </section>
     } @else if (page === 'offers') {
-      <section class="wrap page-intro">
+      <section appReveal class="wrap page-intro">
         <span class="eyebrow">A LITTLE EXTRA CARE</span>
         <h1>{{ t('مساحة للمفاجآت اللطيفة.', 'A little something extra.') }}</h1>
         <p>
@@ -276,9 +277,9 @@ import { ProductCardComponent } from '../../shared/components/product-card/produ
         </p>
       </section>
       <section class="wrap brand-section">
-        <div class="brand-offer-grid">
+        <div appReveal class="brand-offer-grid">
           @for (o of offers.offers(); track o.id) {
-            <article class="brand-offer">
+            <article appReveal class="brand-offer">
               <span class="pill">{{ t('من بيو إن إل', 'FROM BIO NL') }}</span>
               <h2>{{ t(o.titleAr, o.titleEn) }}</h2>
               <p>{{ t(o.descriptionAr || '', o.descriptionEn || '') }}</p>
@@ -301,7 +302,7 @@ import { ProductCardComponent } from '../../shared/components/product-card/produ
         </div>
       </section>
     } @else {
-      <section class="wrap page-intro">
+      <section appReveal class="wrap page-intro">
         <span class="eyebrow">404</span>
         <h1>{{ t('يبدو أنك وصلت لمكان آخر.', 'A little off the path.') }}</h1>
         <p>
@@ -316,7 +317,7 @@ import { ProductCardComponent } from '../../shared/components/product-card/produ
       </section>
     }
     @if (page !== 'missing') {
-      <section class="wrap contact-ribbon">
+      <section appReveal class="wrap contact-ribbon">
         <div>
           <span class="eyebrow">LET’S TALK</span>
           <h2>{{ t('في بالك سؤال؟', 'Something on your mind?') }}</h2>

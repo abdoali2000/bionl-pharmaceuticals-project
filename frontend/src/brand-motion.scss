@@ -1,0 +1,508 @@
+/* Compositor-friendly ambient movement and progressive scroll reveals. */
+app-public-layout {
+  display: block;
+  position: relative;
+  isolation: isolate;
+}
+.ambient-scene {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+  contain: strict;
+}
+.ambient-glow {
+  position: absolute;
+  width: 52vw;
+  height: 52vw;
+  max-width: 850px;
+  max-height: 850px;
+  border-radius: 50%;
+  filter: blur(65px);
+  opacity: 0.65;
+  will-change: transform;
+}
+.glow-one {
+  top: -25%;
+  right: -24%;
+  background: radial-gradient(circle, #ddc7f1 0%, #ead8f6 28%, transparent 68%);
+  animation: ambient-drift 24s ease-in-out infinite alternate;
+}
+.glow-two {
+  top: 35%;
+  left: -28%;
+  background: radial-gradient(circle, #ecd1e7 0%, #f3e7f7 32%, transparent 68%);
+  animation: ambient-drift 30s ease-in-out -12s infinite alternate-reverse;
+}
+.glow-three {
+  bottom: -30%;
+  right: 15%;
+  background: radial-gradient(circle, #e1d5f7 0%, transparent 65%);
+  animation: ambient-drift 26s ease-in-out -8s infinite alternate;
+}
+.ambient-grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(#a887bf 0.65px, transparent 0.65px);
+  background-size: 36px 36px;
+  opacity: 0.11;
+  mask-image: linear-gradient(transparent 5%, black 30%, transparent 95%);
+}
+.molecule {
+  position: absolute;
+  width: 180px;
+  stroke: #a570b5;
+  stroke-width: 0.8;
+  opacity: 0.13;
+  animation: molecule-float 32s ease-in-out infinite;
+}
+.molecule circle {
+  fill: #f3e7f7;
+  stroke-width: 1.3;
+}
+.molecule-one {
+  top: 20%;
+  right: -35px;
+}
+.molecule-two {
+  bottom: 8%;
+  left: -25px;
+  width: 140px;
+  animation-delay: -17s;
+}
+.ambient-particle {
+  position: absolute;
+  left: calc(6% + var(--particle-index) * 12%);
+  top: calc(12% + var(--particle-index) * 9%);
+  width: calc(3px + var(--particle-index) * 0.5px);
+  aspect-ratio: 1;
+  background: #a871bb;
+  border-radius: 50%;
+  opacity: 0.18;
+  animation: particle-rise 14s ease-in-out infinite;
+  animation-delay: calc(var(--particle-index) * -1.7s);
+}
+.motion-ready {
+  opacity: 0;
+  transform: translate3d(0, 30px, 0);
+  transition:
+    opacity 0.9s cubic-bezier(0.2, 0.65, 0.3, 1) var(--reveal-delay, 0ms),
+    transform 0.9s cubic-bezier(0.2, 0.65, 0.3, 1) var(--reveal-delay, 0ms);
+}
+.motion-ready.motion-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+.brand-product-grid app-product-card:nth-child(4n + 2) .motion-ready {
+  --reveal-delay: 80ms !important;
+}
+.brand-product-grid app-product-card:nth-child(4n + 3) .motion-ready {
+  --reveal-delay: 160ms !important;
+}
+.brand-product-grid app-product-card:nth-child(4n + 4) .motion-ready {
+  --reveal-delay: 240ms !important;
+}
+.brand-hero .hero-copy h1 em {
+  background: linear-gradient(110deg, #792e96 15%, #c54698 40%, #792e96 65%);
+  background-size: 230% 100%;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: headline-shimmer 11s ease-in-out infinite;
+}
+.hero-stage {
+  box-shadow:
+    inset 0 0 80px #ffffff60,
+    0 20px 80px #843e9c09;
+}
+.hero-stage:after {
+  content: '';
+  position: absolute;
+  inset: -60%;
+  background: linear-gradient(115deg, transparent 43%, #ffffff32 50%, transparent 57%);
+  transform: translateX(-40%) rotate(15deg);
+  animation: stage-light 12s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 3;
+}
+.stage-orbit {
+  animation: orbit-breathe 16s ease-in-out infinite;
+}
+.stage-disc {
+  animation: pedestal-breathe 7s ease-in-out infinite;
+}
+.stage-mark {
+  animation: mark-float 8s ease-in-out infinite;
+}
+.tiny-orbit {
+  position: relative;
+}
+.tiny-orbit:after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border: 1px solid #b57dc9;
+  border-radius: 50%;
+  animation: care-pulse 3.5s ease-out infinite;
+}
+.about-logo {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 45%, #fdfaff 0%, #efe3f6 65%, #e4d1ee 100%);
+}
+.about-logo:before,
+.about-logo:after {
+  content: '';
+  position: absolute;
+  width: 310px;
+  aspect-ratio: 1;
+  border: 1px solid #c8a4da55;
+  border-radius: 45% 55% 61% 39%;
+  z-index: -1;
+  animation: brand-orbit 28s linear infinite;
+}
+.about-logo:after {
+  width: 370px;
+  border-radius: 59% 41% 38% 62%;
+  animation-direction: reverse;
+  animation-duration: 36s;
+  border-style: dashed;
+}
+.about-logo img {
+  animation: mark-float 8s ease-in-out infinite;
+  filter: drop-shadow(0 16px 14px #78449018);
+}
+.dna-art {
+  animation: dna-sway 13s ease-in-out infinite;
+}
+.dna-art span {
+  animation: dna-rung 4s ease-in-out infinite;
+}
+.dna-art span:nth-child(2n) {
+  animation-delay: -2s;
+}
+.value-grid article {
+  overflow: hidden;
+  transition:
+    transform 0.35s,
+    box-shadow 0.35s,
+    border-color 0.35s;
+}
+.value-grid article:before {
+  content: '';
+  position: absolute;
+  width: 180px;
+  aspect-ratio: 1;
+  inset-inline-end: -90px;
+  top: -100px;
+  border-radius: 50%;
+  background: #e8d6f2;
+  opacity: 0.3;
+  transition: transform 0.5s;
+}
+.value-grid article:hover {
+  transform: translateY(-7px);
+  box-shadow: 0 18px 40px #71338e0c;
+  border-color: #cdb3df;
+}
+.value-grid article:hover:before {
+  transform: scale(1.8);
+}
+.value-grid article > i {
+  display: inline-block;
+  transition: transform 0.5s;
+}
+.value-grid article:hover > i {
+  transform: rotate(-12deg) scale(1.12);
+}
+.brand-button {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 7px 20px #792e9612;
+  transition:
+    transform 0.25s,
+    box-shadow 0.25s,
+    background 0.25s;
+}
+.brand-button:after {
+  content: '';
+  position: absolute;
+  inset: -100%;
+  background: linear-gradient(115deg, transparent 42%, #ffffff24 50%, transparent 58%);
+  transform: translateX(-75%);
+  transition: transform 0.65s;
+  pointer-events: none;
+}
+.brand-button:hover:after {
+  transform: translateX(75%);
+}
+.brand-button:hover {
+  box-shadow: 0 12px 28px #792e9626;
+}
+.text-link span,
+.text-link i,
+.brand-button i {
+  transition: transform 0.3s;
+}
+.text-link:hover span,
+.brand-button:hover i {
+  transform: translate(-3px, -3px);
+}
+.brand-offer {
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.35s;
+}
+.brand-offer:after {
+  content: '✦';
+  position: absolute;
+  inset-inline-end: -10px;
+  bottom: -50px;
+  font-size: 220px;
+  line-height: 1;
+  color: #bc8dc81a;
+  pointer-events: none;
+  animation: offer-spark 22s linear infinite;
+}
+.brand-offer:hover {
+  box-shadow: 0 16px 45px #88409a12;
+}
+.offer-editorial img {
+  animation: offer-product-float 8s ease-in-out infinite;
+}
+.contact-ribbon {
+  position: relative;
+}
+.contact-ribbon:after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #ae77c4, transparent);
+  background-size: 50% 100%;
+  animation: ribbon-light 9s linear infinite;
+}
+.brand-header {
+  transition: box-shadow 0.3s;
+  box-shadow: 0 3px 22px #60257504;
+}
+.mobile-nav {
+  animation: menu-enter 0.28s ease both;
+}
+@media (hover: hover) and (pointer: fine) {
+  .brand-product-grid .card:hover .card-image img {
+    transform: scale(1.07) rotate(-3deg) !important;
+  }
+  .brand-logo:hover img {
+    transform: rotate(-5deg);
+  }
+  .brand-logo img {
+    transition: transform 0.4s;
+  }
+}
+@keyframes ambient-drift {
+  from {
+    transform: translate3d(-4%, -6%, 0) scale(0.9);
+  }
+  to {
+    transform: translate3d(14%, 15%, 0) scale(1.18);
+  }
+}
+@keyframes molecule-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-12deg);
+  }
+  50% {
+    transform: translateY(-55px) rotate(18deg);
+  }
+}
+@keyframes particle-rise {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.08;
+  }
+  50% {
+    transform: translateY(-45px);
+    opacity: 0.3;
+  }
+}
+@keyframes headline-shimmer {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+@keyframes stage-light {
+  0%,
+  30% {
+    transform: translateX(-40%) rotate(15deg);
+  }
+  70%,
+  100% {
+    transform: translateX(40%) rotate(15deg);
+  }
+}
+@keyframes orbit-breathe {
+  0%,
+  100% {
+    transform: rotate(20deg) scale(0.98);
+  }
+  50% {
+    transform: rotate(-5deg) scale(1.04);
+  }
+}
+@keyframes pedestal-breathe {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: scaleX(0.97);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1.02);
+  }
+}
+@keyframes mark-float {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -9px;
+  }
+}
+@keyframes care-pulse {
+  0% {
+    transform: scale(0.75);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(2.3);
+    opacity: 0;
+  }
+}
+@keyframes brand-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes dna-sway {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) rotate(-20deg);
+  }
+  50% {
+    transform: translate(-50%, -53%) rotate(-8deg);
+  }
+}
+@keyframes dna-rung {
+  0%,
+  100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes offer-spark {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes offer-product-float {
+  0%,
+  100% {
+    transform: rotate(-15deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-9deg) translateY(-12px);
+  }
+}
+@keyframes ribbon-light {
+  to {
+    background-position: 200% 0;
+  }
+}
+@keyframes menu-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 760px) {
+  .ambient-glow {
+    width: 100vw;
+    height: 100vw;
+    filter: blur(45px);
+    opacity: 0.5;
+  }
+  .glow-one {
+    top: 5%;
+    right: -55%;
+  }
+  .glow-two {
+    left: -60%;
+    top: 50%;
+  }
+  .glow-three {
+    display: none;
+  }
+  .molecule {
+    width: 100px;
+    opacity: 0.1;
+  }
+  .molecule-one {
+    right: -45px;
+    top: 35%;
+  }
+  .molecule-two {
+    left: -45px;
+  }
+  .ambient-grid {
+    background-size: 28px 28px;
+    opacity: 0.08;
+  }
+  .ambient-particle:nth-last-child(-n + 4) {
+    display: none;
+  }
+  .motion-ready {
+    transform: translate3d(0, 20px, 0);
+  }
+  .about-logo:before {
+    width: 240px;
+  }
+  .about-logo:after {
+    width: 290px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .motion-ready,
+  .motion-ready.motion-visible {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .ambient-scene {
+    display: none;
+  }
+  .hero-copy h1 em {
+    -webkit-text-fill-color: var(--purple);
+    background: none;
+  }
+  .about-logo img,
+  .offer-editorial img {
+    animation: none !important;
+  }
+}

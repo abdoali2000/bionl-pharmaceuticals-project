@@ -52,3 +52,16 @@ The user explicitly requested implementation of the complete website on a new br
 Confirm final visual direction and official company content, replace sample data, turn preview off, configure the real API/hosting environment, validate authenticated administration and external integrations, verify production data freshness/HTTP statuses, and finish the outstanding functional completion tasks. No unverified company certifications, team members, statistics, phone numbers or WhatsApp destinations were fabricated.
 
 No push, merge or external publication was performed for this design branch.
+
+## Motion refinement — 2026-10-23
+
+The user requested more visible animation and artistic background movement after reviewing the first version. The original design remains preserved in commit `55eb676` (handoff: `35eff59`); no empty checkpoint commit was needed.
+
+- Added a fixed decorative ambient layer: slow purple/pink light pools, a faint dot field, floating particles and molecular outlines. Decorations are hidden from assistive technology and cannot intercept pointer input.
+- Added a reusable one-time IntersectionObserver reveal directive for sections and product cards. Server-rendered content remains visible; unsupported browsers and reduced-motion visitors skip reveal initialization. Observers are disconnected on destruction.
+- Added rotating logo orbits on About, subtle logo movement, animated DNA, hero headline color movement, a light sweep over the product stage, pedestal/orbit movement, card hover treatments, button sheen and offer accents.
+- Mobile reduces particle count, removes one glow layer and reduces decorative size. Reduced-motion styling disables animation and preserves readable content. The uninterrupted offers marquee is retained except for the user's reduced-motion preference.
+- Enabled router scroll restoration and anchor scrolling for navigation.
+- Browser checks confirmed ambient transforms changing over time, logo orbit animation, revealed text at opacity 1, and no horizontal overflow at 375px.
+- Production motion build passed at approximately 615 kB initial size under the unchanged 1 MB error budget; the existing warning thresholds remain. No animation library or new dependency was installed.
+- The full frontend suite passed again (19/19), application TypeScript validation passed, and Git whitespace checks passed after the refinement.
