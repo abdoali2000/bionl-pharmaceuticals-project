@@ -20,7 +20,7 @@ import { LanguageService } from '../../../core/services/language.service';
       min-height: 100dvh;
       align-items: center;
       justify-content: center;
-      background: #0f172a;
+      background: #ffffff;
       padding: 1.5rem;
       font-family: 'Segoe UI', system-ui, sans-serif;
     }
@@ -28,8 +28,8 @@ import { LanguageService } from '../../../core/services/language.service';
     .login-card {
       width: 100%;
       max-width: 420px;
-      background: #1e293b;
-      border: 1px solid #334155;
+      background: #ffffff;
+      border: 1px solid #eae2ef;
       border-radius: 1rem;
       padding: 2.5rem 2rem;
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
@@ -48,7 +48,7 @@ import { LanguageService } from '../../../core/services/language.service';
     .login-title {
       font-size: 1.5rem;
       font-weight: 700;
-      color: #f1f5f9;
+      color: #30233f;
       margin: 0 0 0.25rem;
     }
 
@@ -66,7 +66,7 @@ import { LanguageService } from '../../../core/services/language.service';
       display: block;
       font-size: 0.875rem;
       font-weight: 500;
-      color: #cbd5e1;
+      color: #30233f;
       margin-bottom: 0.5rem;
     }
 
@@ -74,10 +74,10 @@ import { LanguageService } from '../../../core/services/language.service';
       width: 100%;
       padding: 0.875rem 1rem;
       font-size: 1rem;
-      background: #0f172a;
-      border: 1px solid #334155;
+      background: #ffffff;
+      border: 1px solid #eae2ef;
       border-radius: 0.5rem;
-      color: #f1f5f9;
+      color: #30233f;
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
       box-sizing: border-box;
@@ -158,7 +158,7 @@ import { LanguageService } from '../../../core/services/language.service';
 
     .lang-btn {
       background: none;
-      border: 1px solid #475569;
+      border: 1px solid #eae2ef;
       border-radius: 0.5rem;
       color: #94a3b8;
       font-size: 0.8125rem;
@@ -175,7 +175,7 @@ import { LanguageService } from '../../../core/services/language.service';
   template: `
     <div class="login-card">
       <div class="login-header">
-        <div class="login-logo">💊</div>
+        <div class="login-logo"><img src="/brand/logo.png" alt="Bio NL Pharmaceuticals" width="100" height="100"></div>
         <h1 class="login-title">{{ labels().title }}</h1>
         <p class="login-subtitle">{{ labels().subtitle }}</p>
       </div>

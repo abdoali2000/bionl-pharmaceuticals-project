@@ -60,7 +60,7 @@ function endDateAfterStartDate(): ValidatorFn {
     :host {
       display: block;
       padding: 1.5rem;
-      background: #0f172a;
+      background: #ffffff;
       min-height: 100%;
     }
 
@@ -75,14 +75,14 @@ function endDateAfterStartDate(): ValidatorFn {
     .page-title {
       font-size: 1.5rem;
       font-weight: 700;
-      color: #f1f5f9;
+      color: #30233f;
       margin: 0;
       flex: 1;
     }
 
     .form-card {
-      background: #1e293b;
-      border: 1px solid #334155;
+      background: #ffffff;
+      border: 1px solid #eae2ef;
       border-radius: 0.875rem;
       padding: 1.75rem;
       margin-bottom: 1.5rem;
@@ -91,7 +91,7 @@ function endDateAfterStartDate(): ValidatorFn {
     .card-title {
       font-size: 1rem;
       font-weight: 600;
-      color: #e2e8f0;
+      color: #30233f;
       margin: 0 0 1.25rem;
       display: flex;
       align-items: center;
@@ -119,7 +119,7 @@ function endDateAfterStartDate(): ValidatorFn {
     label {
       font-size: 0.875rem;
       font-weight: 500;
-      color: #e2e8f0;
+      color: #30233f;
     }
 
     label .required {
@@ -145,7 +145,7 @@ function endDateAfterStartDate(): ValidatorFn {
       height: 130px;
       object-fit: cover;
       border-radius: 0.5rem;
-      border: 1px solid #334155;
+      border: 1px solid #eae2ef;
       display: block;
     }
 
@@ -153,7 +153,7 @@ function endDateAfterStartDate(): ValidatorFn {
       width: 200px;
       height: 130px;
       border-radius: 0.5rem;
-      background: #0f172a;
+      background: #ffffff;
       border: 2px dashed #334155;
       display: flex;
       flex-direction: column;
@@ -217,7 +217,7 @@ function endDateAfterStartDate(): ValidatorFn {
 
     .checkbox-label {
       font-size: 0.9375rem;
-      color: #cbd5e1;
+      color: #30233f;
     }
   `],
   template: `

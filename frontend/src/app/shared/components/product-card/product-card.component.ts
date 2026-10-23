@@ -107,13 +107,13 @@ import { PublicCategory, PublicProductSummary } from '../../../features/products
       </div>
 
       <!-- Body -->
-      <div class="card-body" [attr.dir]="isAr() ? 'rtl' : 'ltr'">
+      <div class="card-body" [attr.dir]="isAr() === 'ar' ? 'rtl' : 'ltr'">
         <!-- Category badges -->
         @if (product.categories?.length) {
           <div class="card-categories">
             @for (cat of product.categories?.slice(0, 3); track cat.id) {
               <span class="category-badge">
-                {{ isAr() ? cat.nameAr : cat.nameEn }}
+                {{ isAr() === 'ar' ? cat.nameAr : cat.nameEn }}
               </span>
             }
           </div>

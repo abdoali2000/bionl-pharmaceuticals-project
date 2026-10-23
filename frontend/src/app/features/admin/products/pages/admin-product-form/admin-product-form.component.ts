@@ -44,7 +44,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
     :host {
       display: block;
       padding: 1.5rem;
-      background: #0f172a;
+      background: #ffffff;
       min-height: 100%;
     }
 
@@ -59,14 +59,14 @@ import { LanguageService } from '../../../../../core/services/language.service';
     .page-title {
       font-size: 1.5rem;
       font-weight: 700;
-      color: #f1f5f9;
+      color: #30233f;
       margin: 0;
       flex: 1;
     }
 
     .form-card {
-      background: #1e293b;
-      border: 1px solid #334155;
+      background: #ffffff;
+      border: 1px solid #eae2ef;
       border-radius: 0.875rem;
       padding: 1.75rem;
       margin-bottom: 1.5rem;
@@ -75,7 +75,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
     .card-title {
       font-size: 1rem;
       font-weight: 600;
-      color: #e2e8f0;
+      color: #30233f;
       margin: 0 0 1.25rem;
       display: flex;
       align-items: center;
@@ -103,7 +103,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
     label {
       font-size: 0.875rem;
       font-weight: 500;
-      color: #e2e8f0;
+      color: #30233f;
     }
 
     label .required {
@@ -156,7 +156,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
 
     .check-label {
       font-size: 0.875rem;
-      color: #cbd5e1;
+      color: #30233f;
     }
 
 
@@ -171,7 +171,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
       height: 160px;
       object-fit: cover;
       border-radius: 0.5rem;
-      border: 1px solid #334155;
+      border: 1px solid #eae2ef;
       display: block;
     }
 
@@ -179,7 +179,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
       width: 160px;
       height: 160px;
       border-radius: 0.5rem;
-      background: #0f172a;
+      background: #ffffff;
       border: 2px dashed #334155;
       display: flex;
       flex-direction: column;
@@ -242,7 +242,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
     .cover-section-title {
       font-size: 0.9375rem;
       font-weight: 600;
-      color: #e2e8f0;
+      color: #30233f;
       display: flex;
       align-items: center;
       gap: 0.5rem;

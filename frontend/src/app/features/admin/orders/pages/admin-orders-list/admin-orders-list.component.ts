@@ -52,7 +52,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
     :host {
       display: block;
       padding: 1.5rem;
-      background: #0f172a;
+      background: #ffffff;
       min-height: 100%;
     }
 
@@ -70,7 +70,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
     .page-title {
       font-size: 1.5rem;
       font-weight: 700;
-      color: #f1f5f9;
+      color: #30233f;
       margin: 0;
       display: flex;
       align-items: center;
@@ -99,8 +99,8 @@ import { LanguageService } from '../../../../../core/services/language.service';
     /* ── Filter Card ─────────────────────────────────────────────────────── */
 
     .filter-card {
-      background: #1e293b;
-      border: 1px solid #334155;
+      background: #ffffff;
+      border: 1px solid #eae2ef;
       border-radius: 0.875rem;
       padding: 1.25rem 1.5rem;
       margin-bottom: 1.5rem;
@@ -118,7 +118,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
     .filter-card-title {
       font-size: 0.9375rem;
       font-weight: 600;
-      color: #cbd5e1;
+      color: #30233f;
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -147,8 +147,8 @@ import { LanguageService } from '../../../../../core/services/language.service';
     /* ── Table Card ──────────────────────────────────────────────────────── */
 
     .table-card {
-      background: #1e293b;
-      border: 1px solid #334155;
+      background: #ffffff;
+      border: 1px solid #eae2ef;
       border-radius: 0.875rem;
       overflow: hidden;
     }
@@ -163,7 +163,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
 
     .customer-name {
       font-weight: 600;
-      color: #f1f5f9;
+      color: #30233f;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -179,7 +179,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
 
     .phone-cell {
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      color: #cbd5e1;
+      color: #30233f;
       font-size: 0.875rem;
       white-space: nowrap;
     }
@@ -188,7 +188,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
       display: inline-flex;
       align-items: center;
       gap: 0.375rem;
-      color: #e2e8f0;
+      color: #30233f;
       font-size: 0.875rem;
       white-space: nowrap;
     }

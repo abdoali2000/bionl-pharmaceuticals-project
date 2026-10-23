@@ -42,7 +42,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
     :host {
       display: block;
       padding: 1.5rem;
-      background: #0f172a;
+      background: #ffffff;
       min-height: 100%;
     }
 
@@ -67,7 +67,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
     .order-header-title {
       font-size: 1.375rem;
       font-weight: 700;
-      color: #f1f5f9;
+      color: #30233f;
       margin: 0;
       display: flex;
       align-items: center;
@@ -95,8 +95,8 @@ import { LanguageService } from '../../../../../core/services/language.service';
     /* ── Cards ───────────────────────────────────────────────────────────── */
 
     .card {
-      background: #1e293b;
-      border: 1px solid #334155;
+      background: #ffffff;
+      border: 1px solid #eae2ef;
       border-radius: 0.875rem;
       overflow: hidden;
     }
@@ -114,7 +114,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
     .card-title {
       font-size: 1.0625rem;
       font-weight: 600;
-      color: #f1f5f9;
+      color: #30233f;
       margin: 0;
       display: flex;
       align-items: center;
@@ -149,7 +149,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
 
     .info-value {
       font-size: 0.9375rem;
-      color: #e2e8f0;
+      color: #30233f;
       font-weight: 500;
       word-break: break-word;
     }
@@ -164,13 +164,13 @@ import { LanguageService } from '../../../../../core/services/language.service';
       margin-top: 1.25rem;
       padding: 1rem 1.25rem;
       background: rgba(15, 23, 42, 0.6);
-      border: 1px solid #334155;
+      border: 1px solid #eae2ef;
       border-radius: 0.5rem;
     }
 
     .notes-text {
       font-size: 0.875rem;
-      color: #cbd5e1;
+      color: #30233f;
       white-space: pre-wrap;
       margin: 0.25rem 0 0;
       line-height: 1.5;
@@ -186,7 +186,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
 
     .item-primary-name {
       font-weight: 600;
-      color: #f1f5f9;
+      color: #30233f;
       font-size: 0.9375rem;
     }
 
@@ -214,8 +214,8 @@ import { LanguageService } from '../../../../../core/services/language.service';
     }
 
     .proof-card {
-      background: #0f172a;
-      border: 1px solid #334155;
+      background: #ffffff;
+      border: 1px solid #eae2ef;
       border-radius: 0.75rem;
       overflow: hidden;
       display: flex;

@@ -1,6 +1,6 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, PLATFORM_ID } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { LanguageService } from '../../../../core/services/language.service';
 
 @Component({
@@ -154,17 +154,17 @@ import { LanguageService } from '../../../../core/services/language.service';
 
       <!-- Success icon -->
       <div class="success-icon-wrap" aria-hidden="true">
-        <span class="success-icon">✓</span>
+        <span class="success-icon">{{orderId() ? '✓' : '↗'}}</span>
       </div>
 
       <!-- Title -->
       <h1 class="success-title">
-        {{ isAr() === 'ar' ? '🎉 تم إرسال طلبك بنجاح!' : '🎉 Order Placed Successfully!' }}
+        {{ orderId() ? (isAr() === 'ar' ? 'تم إرسال طلبك بنجاح!' : 'Order Placed Successfully!') : (isAr() === 'ar' ? 'رحلتك تبدأ من هنا' : 'Your journey starts here') }}
       </h1>
 
       <!-- Subtitle -->
       <p class="success-subtitle">
-        {{ isAr() === 'ar'
+        {{ !orderId() ? (isAr() === 'ar' ? 'لا يوجد تأكيد طلب في هذه الجلسة. يمكنك العودة لاستكشاف المنتجات.' : 'There is no order confirmation in this session. Explore our collection to get started.') : isAr() === 'ar'
           ? 'شكرًا لك على طلبك. سيتواصل معك فريقنا قريبًا لتأكيد الطلب وترتيب التوصيل.'
           : 'Thank you for your order. Our team will contact you shortly to confirm and arrange delivery.' }}
       </p>
@@ -180,11 +180,11 @@ import { LanguageService } from '../../../../core/services/language.service';
       }
 
       <!-- Info -->
-      <div class="info-box">
+      @if (orderId()) {<div class="info-box">
         {{ isAr() === 'ar'
           ? 'ℹ️ سيتم مراجعة إثبات الدفع الخاص بك وتأكيد طلبك خلال فترة وجيزة. احتفظ برقم الطلب للمرجعية.'
           : 'ℹ️ Your payment proof will be reviewed and your order confirmed shortly. Keep your order ID for reference.' }}
-      </div>
+      </div>}
 
       <!-- Actions -->
       <div class="actions">
@@ -210,6 +210,7 @@ import { LanguageService } from '../../../../core/services/language.service';
 export class OrderSuccessPageComponent implements OnInit {
   private router = inject(Router);
   private langService = inject(LanguageService);
+  private platformId = inject(PLATFORM_ID);
 
   readonly isAr = this.langService.currentLang;
   readonly orderId = signal('');
@@ -217,7 +218,7 @@ export class OrderSuccessPageComponent implements OnInit {
   ngOnInit(): void {
     const nav = this.router.getCurrentNavigation();
     const state = nav?.extras?.state as { orderId?: string } | undefined;
-    const id = state?.orderId ?? (history.state as { orderId?: string })?.orderId ?? '';
+    const id = state?.orderId ?? (isPlatformBrowser(this.platformId) ? (history.state as { orderId?: string })?.orderId : '') ?? '';
     this.orderId.set(id);
   }
 }

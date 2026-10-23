@@ -33,7 +33,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
     :host {
       display: block;
       padding: 1.5rem;
-      background: #0f172a;
+      background: #ffffff;
       min-height: 100%;
     }
 
@@ -49,7 +49,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
     .page-title {
       font-size: 1.5rem;
       font-weight: 700;
-      color: #f1f5f9;
+      color: #30233f;
       margin: 0;
     }
 
@@ -60,8 +60,8 @@ import { LanguageService } from '../../../../../core/services/language.service';
     }
 
     .table-card {
-      background: #1e293b;
-      border: 1px solid #334155;
+      background: #ffffff;
+      border: 1px solid #eae2ef;
       border-radius: 0.875rem;
       overflow: hidden;
     }
@@ -71,7 +71,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
       height: 40px;
       object-fit: cover;
       border-radius: 0.375rem;
-      border: 1px solid #334155;
+      border: 1px solid #eae2ef;
       display: block;
     }
 
@@ -95,7 +95,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
 
     .title-primary {
       font-weight: 600;
-      color: #f1f5f9;
+      color: #30233f;
       font-size: 0.9375rem;
     }
 
@@ -106,7 +106,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
 
     .date-cell {
       font-size: 0.875rem;
-      color: #cbd5e1;
+      color: #30233f;
       white-space: nowrap;
     }
 

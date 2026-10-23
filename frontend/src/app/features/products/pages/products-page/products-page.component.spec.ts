@@ -1,3 +1,4 @@
+import { CatalogPreviewService } from '../../../brand/catalog-preview';
 import { Component } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
@@ -40,6 +41,7 @@ describe('ProductsPageComponent category filtering', () => {
   beforeEach(async () => {
     TestBed.configureTestingModule({
       providers: [
+        { provide: CatalogPreviewService, useValue: { response: () => undefined } },
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([
@@ -56,23 +58,31 @@ describe('ProductsPageComponent category filtering', () => {
   afterEach(() => http.verify());
 
   function flushCategories(): void {
-    http.expectOne(req => req.url.endsWith('/categories')).flush({
-      success: true, data: categories, meta: { total: categories.length },
-    });
+    http
+      .expectOne((req) => req.url.endsWith('/categories'))
+      .flush({
+        success: true,
+        data: categories,
+        meta: { total: categories.length },
+      });
   }
 
   function flushProducts(category: string | null): void {
-    const request = http.expectOne(req => req.url.endsWith('/products'));
+    const request = http.expectOne((req) => req.url.endsWith('/products'));
     expect(request.request.params.get('category')).toBe(category);
     expect(request.request.params.has('categoryId')).toBe(false);
-    const matching = category ? products.filter(product => product.categories[0].slug === category) : products;
+    const matching = category
+      ? products.filter((product) => product.categories[0].slug === category)
+      : products;
     request.flush({ success: true, data: matching, meta: { total: matching.length } });
     harness.detectChanges();
   }
 
   function categoryChip(label: string): HTMLButtonElement {
-    const chips = Array.from(harness.routeNativeElement!.querySelectorAll<HTMLButtonElement>('.category-chips .chip'));
-    const chip = chips.find(button => button.textContent?.trim() === label);
+    const chips = Array.from(
+      harness.routeNativeElement!.querySelectorAll<HTMLButtonElement>('.category-chips .chip'),
+    );
+    const chip = chips.find((button) => button.textContent?.trim() === label);
     if (!chip) throw new Error(`Category chip not found: ${label}`);
     return chip;
   }
@@ -90,14 +100,21 @@ describe('ProductsPageComponent category filtering', () => {
     expect(router.parseUrl(router.url).queryParams['category']).toBe('derma');
     expect(categoryChip('Derma').classList.contains('active')).toBe(true);
     expect(harness.routeNativeElement!.querySelectorAll('app-product-card')).toHaveLength(1);
-    expect(harness.routeNativeElement!.querySelector('.product-grid')?.textContent).toContain('Derma Cream');
-    expect(harness.routeNativeElement!.querySelector('.product-grid')?.textContent).not.toContain('Pedia Cream');
+    expect(harness.routeNativeElement!.querySelector('.product-grid')?.textContent).toContain(
+      'Derma Cream',
+    );
+    expect(harness.routeNativeElement!.querySelector('.product-grid')?.textContent).not.toContain(
+      'Pedia Cream',
+    );
   });
 
   it('restores the active category and combined filters from a direct URL', async () => {
-    await harness.navigateByUrl('/products?category=derma&search=cream&minPrice=10&maxPrice=200', ProductsPageComponent);
+    await harness.navigateByUrl(
+      '/products?category=derma&search=cream&minPrice=10&maxPrice=200',
+      ProductsPageComponent,
+    );
     flushCategories();
-    const request = http.expectOne(req => req.url.endsWith('/products'));
+    const request = http.expectOne((req) => req.url.endsWith('/products'));
     expect(request.request.params.get('category')).toBe('derma');
     expect(request.request.params.get('search')).toBe('cream');
     expect(request.request.params.get('minPrice')).toBe('10');
@@ -107,9 +124,15 @@ describe('ProductsPageComponent category filtering', () => {
     harness.detectChanges();
 
     expect(categoryChip('Derma').classList.contains('active')).toBe(true);
-    expect(harness.routeNativeElement!.querySelector<HTMLInputElement>('#product-search-input')!.value).toBe('cream');
-    expect(harness.routeNativeElement!.querySelector<HTMLInputElement>('#min-price-input')!.value).toBe('10');
-    expect(harness.routeNativeElement!.querySelector<HTMLInputElement>('#max-price-input')!.value).toBe('200');
+    expect(
+      harness.routeNativeElement!.querySelector<HTMLInputElement>('#product-search-input')!.value,
+    ).toBe('cream');
+    expect(
+      harness.routeNativeElement!.querySelector<HTMLInputElement>('#min-price-input')!.value,
+    ).toBe('10');
+    expect(
+      harness.routeNativeElement!.querySelector<HTMLInputElement>('#max-price-input')!.value,
+    ).toBe('200');
   });
 
   it('recreates the selected filter when the saved URL is opened again', async () => {
@@ -130,13 +153,17 @@ describe('ProductsPageComponent category filtering', () => {
   });
 
   it('clears the category while keeping search, price, and unrelated URL parameters', async () => {
-    await harness.navigateByUrl('/products?category=derma&search=cream&minPrice=10&maxPrice=200&source=home', ProductsPageComponent);
+    await harness.navigateByUrl(
+      '/products?category=derma&search=cream&minPrice=10&maxPrice=200&source=home',
+      ProductsPageComponent,
+    );
     flushCategories();
     flushProducts('derma');
-    const allChip = harness.routeNativeElement!.querySelector<HTMLButtonElement>('.category-chips .chip')!;
+    const allChip =
+      harness.routeNativeElement!.querySelector<HTMLButtonElement>('.category-chips .chip')!;
     allChip.click();
 
-    const request = http.expectOne(req => req.url.endsWith('/products'));
+    const request = http.expectOne((req) => req.url.endsWith('/products'));
     expect(request.request.params.keys().sort()).toEqual(['maxPrice', 'minPrice', 'search']);
     expect(request.request.params.get('search')).toBe('cream');
     expect(request.request.params.get('minPrice')).toBe('10');
@@ -145,7 +172,12 @@ describe('ProductsPageComponent category filtering', () => {
     await harness.fixture.whenStable();
     harness.detectChanges();
 
-    expect(router.parseUrl(router.url).queryParams).toEqual({ search: 'cream', minPrice: '10', maxPrice: '200', source: 'home' });
+    expect(router.parseUrl(router.url).queryParams).toEqual({
+      search: 'cream',
+      minPrice: '10',
+      maxPrice: '200',
+      source: 'home',
+    });
     expect(allChip.classList.contains('active')).toBe(true);
     expect(harness.routeNativeElement!.querySelectorAll('app-product-card')).toHaveLength(2);
   });
@@ -153,7 +185,9 @@ describe('ProductsPageComponent category filtering', () => {
   it('replaces an obsolete categoryId URL parameter when a slug filter is selected', async () => {
     await harness.navigateByUrl(`/products?categoryId=${categories[0].id}`, ProductsPageComponent);
     flushCategories();
-    http.expectOne(req => req.url.endsWith('/products')).flush({ success: true, data: products, meta: { total: 2 } });
+    http
+      .expectOne((req) => req.url.endsWith('/products'))
+      .flush({ success: true, data: products, meta: { total: 2 } });
     harness.detectChanges();
 
     categoryChip('Pedia').click();
@@ -166,50 +200,63 @@ describe('ProductsPageComponent category filtering', () => {
   it.each([
     { inputId: 'min-price-input', parameter: 'minPrice' },
     { inputId: 'max-price-input', parameter: 'maxPrice' },
-  ])('keeps zero in $parameter and removes it only when the input is empty', async ({ inputId, parameter }) => {
-    await harness.navigateByUrl('/products?category=derma&search=cream', ProductsPageComponent);
-    flushCategories();
-    flushProducts('derma');
-    const input = harness.routeNativeElement!.querySelector<HTMLInputElement>(`#${inputId}`)!;
+  ])(
+    'keeps zero in $parameter and removes it only when the input is empty',
+    async ({ inputId, parameter }) => {
+      await harness.navigateByUrl('/products?category=derma&search=cream', ProductsPageComponent);
+      flushCategories();
+      flushProducts('derma');
+      const input = harness.routeNativeElement!.querySelector<HTMLInputElement>(`#${inputId}`)!;
 
-    input.value = '0';
-    input.dispatchEvent(new Event('input'));
-    const zeroRequest = http.expectOne(req => req.url.endsWith('/products'));
-    expect(zeroRequest.request.params.get(parameter)).toBe('0');
-    expect(zeroRequest.request.params.get('category')).toBe('derma');
-    expect(zeroRequest.request.params.get('search')).toBe('cream');
-    zeroRequest.flush({ success: true, data: [], meta: { total: 0 } });
-    await harness.fixture.whenStable();
-    harness.detectChanges();
+      input.value = '0';
+      input.dispatchEvent(new Event('input'));
+      const zeroRequest = http.expectOne((req) => req.url.endsWith('/products'));
+      expect(zeroRequest.request.params.get(parameter)).toBe('0');
+      expect(zeroRequest.request.params.get('category')).toBe('derma');
+      expect(zeroRequest.request.params.get('search')).toBe('cream');
+      zeroRequest.flush({ success: true, data: [], meta: { total: 0 } });
+      await harness.fixture.whenStable();
+      harness.detectChanges();
 
-    expect(router.parseUrl(router.url).queryParams[parameter]).toBe('0');
-    expect(input.value).toBe('0');
+      expect(router.parseUrl(router.url).queryParams[parameter]).toBe('0');
+      expect(input.value).toBe('0');
 
-    input.value = '';
-    input.dispatchEvent(new Event('input'));
-    const emptyRequest = http.expectOne(req => req.url.endsWith('/products'));
-    expect(emptyRequest.request.params.has(parameter)).toBe(false);
-    expect(emptyRequest.request.params.get('category')).toBe('derma');
-    expect(emptyRequest.request.params.get('search')).toBe('cream');
-    emptyRequest.flush({ success: true, data: [products[0]], meta: { total: 1 } });
-    await harness.fixture.whenStable();
-    harness.detectChanges();
+      input.value = '';
+      input.dispatchEvent(new Event('input'));
+      const emptyRequest = http.expectOne((req) => req.url.endsWith('/products'));
+      expect(emptyRequest.request.params.has(parameter)).toBe(false);
+      expect(emptyRequest.request.params.get('category')).toBe('derma');
+      expect(emptyRequest.request.params.get('search')).toBe('cream');
+      emptyRequest.flush({ success: true, data: [products[0]], meta: { total: 1 } });
+      await harness.fixture.whenStable();
+      harness.detectChanges();
 
-    expect(router.parseUrl(router.url).queryParams).toEqual({ category: 'derma', search: 'cream' });
-    expect(input.value).toBe('');
-  });
+      expect(router.parseUrl(router.url).queryParams).toEqual({
+        category: 'derma',
+        search: 'cream',
+      });
+      expect(input.value).toBe('');
+    },
+  );
 
   it('restores zero-valued price filters from a direct URL and clears them explicitly', async () => {
-    const page = await harness.navigateByUrl('/products?minPrice=0&maxPrice=0', ProductsPageComponent);
+    const page = await harness.navigateByUrl(
+      '/products?minPrice=0&maxPrice=0',
+      ProductsPageComponent,
+    );
     flushCategories();
-    const zeroRequest = http.expectOne(req => req.url.endsWith('/products'));
+    const zeroRequest = http.expectOne((req) => req.url.endsWith('/products'));
     expect(zeroRequest.request.params.get('minPrice')).toBe('0');
     expect(zeroRequest.request.params.get('maxPrice')).toBe('0');
     zeroRequest.flush({ success: true, data: [], meta: { total: 0 } });
     harness.detectChanges();
 
-    expect(harness.routeNativeElement!.querySelector<HTMLInputElement>('#min-price-input')!.value).toBe('0');
-    expect(harness.routeNativeElement!.querySelector<HTMLInputElement>('#max-price-input')!.value).toBe('0');
+    expect(
+      harness.routeNativeElement!.querySelector<HTMLInputElement>('#min-price-input')!.value,
+    ).toBe('0');
+    expect(
+      harness.routeNativeElement!.querySelector<HTMLInputElement>('#max-price-input')!.value,
+    ).toBe('0');
     expect(page.hasActiveFilters()).toBe(true);
 
     page.clearPriceFilter();
@@ -219,7 +266,11 @@ describe('ProductsPageComponent category filtering', () => {
 
     expect(router.parseUrl(router.url).queryParams).toEqual({});
     expect(page.hasActiveFilters()).toBe(false);
-    expect(harness.routeNativeElement!.querySelector<HTMLInputElement>('#min-price-input')!.value).toBe('');
-    expect(harness.routeNativeElement!.querySelector<HTMLInputElement>('#max-price-input')!.value).toBe('');
+    expect(
+      harness.routeNativeElement!.querySelector<HTMLInputElement>('#min-price-input')!.value,
+    ).toBe('');
+    expect(
+      harness.routeNativeElement!.querySelector<HTMLInputElement>('#max-price-input')!.value,
+    ).toBe('');
   });
 });

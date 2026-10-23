@@ -428,6 +428,7 @@ type SubmitState = 'idle' | 'loading' | 'error';
   `],
   template: `
     <div class="page-wrapper" [attr.dir]="isAr() === 'ar' ? 'rtl' : 'ltr'">
+      @if (hasDemoProducts()) {<p class="preview-order-note" role="status">{{isAr() === 'ar' ? 'أنت تعاين تجربة الطلب بمنتجات تجريبية. الإرسال متاح للمنتجات الفعلية فقط.' : 'You are previewing checkout with sample products. Only real products can be ordered.'}}</p>}
 
       <!-- Page Header -->
       <div class="page-header">
@@ -779,7 +780,7 @@ type SubmitState = 'idle' | 'loading' | 'error';
             type="submit"
             id="submit-order-btn"
             class="submit-btn"
-            [disabled]="submitState() === 'loading' || cartService.cartItems().length === 0"
+            [disabled]="submitState() === 'loading' || cartService.cartItems().length === 0 || hasDemoProducts()"
           >
             @if (submitState() === 'loading') {
               <div class="spinner"></div>
@@ -802,6 +803,7 @@ export class OrderFormPageComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   readonly cartService = inject(CartService);
+  readonly hasDemoProducts = () => this.cartService.cartItems().some(item => item.productId.startsWith('demo-'));
   readonly langService = inject(LanguageService);
   readonly isAr = this.langService.currentLang;
 
@@ -894,6 +896,7 @@ export class OrderFormPageComponent implements OnInit {
   // ── Submission ────────────────────────────────────────────────────────────
 
   onSubmit(): void {
+    if (this.hasDemoProducts()) return;
     this.form.markAllAsTouched();
 
     if (!this.selectedFile()) {

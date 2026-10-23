@@ -33,7 +33,7 @@ type FilterOption = 'all' | 'unread';
     :host {
       display: block;
       padding: 1.5rem;
-      background: #0f172a;
+      background: #ffffff;
       min-height: 100%;
     }
 
@@ -49,7 +49,7 @@ type FilterOption = 'all' | 'unread';
     .page-title {
       font-size: 1.5rem;
       font-weight: 700;
-      color: #f1f5f9;
+      color: #30233f;
       margin: 0;
     }
 
@@ -88,8 +88,8 @@ type FilterOption = 'all' | 'unread';
     /* ── Table card ──────────────────────────────────────────────────────── */
 
     .table-card {
-      background: #1e293b;
-      border: 1px solid #334155;
+      background: #ffffff;
+      border: 1px solid #eae2ef;
       border-radius: 0.875rem;
       overflow: hidden;
     }
@@ -102,7 +102,7 @@ type FilterOption = 'all' | 'unread';
 
     .sender-name {
       font-weight: 600;
-      color: #f1f5f9;
+      color: #30233f;
       font-size: 0.9375rem;
     }
 
@@ -117,12 +117,12 @@ type FilterOption = 'all' | 'unread';
 
     .subject-cell {
       font-size: 0.9rem;
-      color: #cbd5e1;
+      color: #30233f;
       font-weight: 500;
     }
 
     .subject-cell.unread {
-      color: #f1f5f9;
+      color: #30233f;
       font-weight: 600;
     }
 
