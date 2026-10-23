@@ -4,6 +4,10 @@ Created: 2026-10-21
 Baseline: source review and checks recorded on 2026-10-20
 Purpose: execute the remaining work in small, reviewable tasks without changing the original backlog into a progress log.
 
+## Design implementation override — 2026-10-23
+
+The user requested a new branch implementing the complete light-mode website immediately, with white/purple branding from supplied logos, mobile-first layouts, subtle animation, an uninterrupted offers marquee and seven illustrative products. This supersedes the earlier execution order and the three-concept prerequisite for this design effort. Implementation is on `codex/full-website-design`, based on the current local G01 branch. See [Website Design Handoff](08-website-design-handoff.md) for the exact delivered scope, preview configuration, checks and limitations. Final user visual acceptance, real content/integrations, G02 hardening and release verification remain outstanding; this override does not automatically mark every original task DONE.
+
 ## 1. Document boundaries and working agreement
 
 - This document is the working backlog for completion work only.
