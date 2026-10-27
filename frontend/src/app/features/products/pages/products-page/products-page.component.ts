@@ -280,7 +280,7 @@ import { ProductCardComponent } from '../../../../shared/components/product-card
           <!-- "All" chip -->
           <button
             class="chip"
-            [class.active]="!activeCategoryId()"
+            [class.active]="!activeCategorySlug()"
             (click)="selectCategory(null)"
             type="button"
           >
@@ -290,8 +290,8 @@ import { ProductCardComponent } from '../../../../shared/components/product-card
           @for (cat of productsService.categories(); track cat.id) {
             <button
               class="chip"
-              [class.active]="activeCategoryId() === cat.id"
-              (click)="selectCategory(cat.id)"
+              [class.active]="activeCategorySlug() === cat.slug"
+              (click)="selectCategory(cat.slug)"
               type="button"
             >
               {{ isAr() ? cat.nameAr : cat.nameEn }}
@@ -412,7 +412,7 @@ export class ProductsPageComponent implements OnInit, OnDestroy {
 
   // Filter state (signals)
   readonly searchInputValue = signal<string>('');
-  readonly activeCategoryId = signal<string | null>(null);
+  readonly activeCategorySlug = signal<string | null>(null);
   readonly minPrice = signal<number | null>(null);
   readonly maxPrice = signal<number | null>(null);
   readonly hasError = signal(false);
@@ -423,7 +423,7 @@ export class ProductsPageComponent implements OnInit, OnDestroy {
 
   // Computed: whether any filter is active
   readonly hasActiveFilters = computed(() =>
-    !!this.searchInputValue() || !!this.activeCategoryId() ||
+    !!this.searchInputValue() || !!this.activeCategorySlug() ||
     this.minPrice() != null || this.maxPrice() != null
   );
 
@@ -437,7 +437,7 @@ export class ProductsPageComponent implements OnInit, OnDestroy {
     // Hydrate filter state from URL query params (SSR-compatible)
     const qp = this.route.snapshot.queryParams;
     if (qp['search'])     this.searchInputValue.set(qp['search']);
-    if (qp['categoryId']) this.activeCategoryId.set(qp['categoryId']);
+    if (qp['category'])   this.activeCategorySlug.set(qp['category']);
     if (qp['minPrice'])   this.minPrice.set(Number(qp['minPrice']));
     if (qp['maxPrice'])   this.maxPrice.set(Number(qp['maxPrice']));
 
@@ -467,18 +467,18 @@ export class ProductsPageComponent implements OnInit, OnDestroy {
     this.searchSubject.next(value);
   }
 
-  selectCategory(id: string | null): void {
-    this.activeCategoryId.set(id);
+  selectCategory(slug: string | null): void {
+    this.activeCategorySlug.set(slug);
     this.syncUrlAndFetch();
   }
 
   onMinPriceChange(value: number | null): void {
-    this.minPrice.set(value === 0 ? null : value);
+    this.minPrice.set(value);
     this.syncUrlAndFetch();
   }
 
   onMaxPriceChange(value: number | null): void {
-    this.maxPrice.set(value === 0 ? null : value);
+    this.maxPrice.set(value);
     this.syncUrlAndFetch();
   }
 
@@ -490,7 +490,7 @@ export class ProductsPageComponent implements OnInit, OnDestroy {
 
   clearAllFilters(): void {
     this.searchInputValue.set('');
-    this.activeCategoryId.set(null);
+    this.activeCategorySlug.set(null);
     this.minPrice.set(null);
     this.maxPrice.set(null);
     this.syncUrlAndFetch();
@@ -508,7 +508,8 @@ export class ProductsPageComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       const qp: Record<string, string | null> = {
         search:     this.searchInputValue() || null,
-        categoryId: this.activeCategoryId(),
+        category:   this.activeCategorySlug(),
+        categoryId: null,
         minPrice:   this.minPrice() != null ? String(this.minPrice()) : null,
         maxPrice:   this.maxPrice() != null ? String(this.maxPrice()) : null,
       };
@@ -528,7 +529,7 @@ export class ProductsPageComponent implements OnInit, OnDestroy {
   private fetchProducts(): void {
     const query: ProductsQuery = {};
     if (this.searchInputValue())   query.search     = this.searchInputValue();
-    if (this.activeCategoryId())   query.categoryId = this.activeCategoryId()!;
+    if (this.activeCategorySlug()) query.category = this.activeCategorySlug()!;
     if (this.minPrice() != null)   query.minPrice   = this.minPrice()!;
     if (this.maxPrice() != null)   query.maxPrice   = this.maxPrice()!;
 

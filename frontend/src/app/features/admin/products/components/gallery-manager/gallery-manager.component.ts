@@ -30,7 +30,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
     .section-title {
       font-size: 1rem;
       font-weight: 600;
-      color: #e2e8f0;
+      color: #30233f;
       margin: 0 0 1rem;
     }
 
@@ -43,10 +43,10 @@ import { LanguageService } from '../../../../../core/services/language.service';
 
     .gallery-item {
       position: relative;
-      border: 1px solid #334155;
+      border: 1px solid #eae2ef;
       border-radius: 0.5rem;
       overflow: hidden;
-      background: #0f172a;
+      background: #ffffff;
     }
 
     .gallery-img {

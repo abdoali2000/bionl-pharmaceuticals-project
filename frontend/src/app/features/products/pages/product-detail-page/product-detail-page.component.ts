@@ -12,7 +12,7 @@ import { Skeleton } from 'primeng/skeleton';
 import { Button } from 'primeng/button';
 
 // App
-import { ProductsService, PublicProduct } from '../../products.service';
+import { ProductsService, PublicProduct, PublicProductSummary } from '../../products.service';
 import { LanguageService } from '../../../../core/services/language.service';
 import { ImageGalleryComponent } from '../../../../shared/components/image-gallery/image-gallery.component';
 import { ProductCardComponent } from '../../../../shared/components/product-card/product-card.component';
@@ -274,7 +274,7 @@ type PageState = 'loading' | 'loaded' | 'not-found' | 'error';
       <div class="state-container">
         <i class="pi pi-box state-icon"></i>
         <p class="state-title">
-          {{ isAr() ? 'المنتج غير موجود' : 'Product not found' }}
+          {{ isAr() === 'ar' ? 'المنتج غير موجود' : 'Product not found' }}
         </p>
         <p class="state-subtitle">
           {{ isAr()
@@ -282,7 +282,7 @@ type PageState = 'loading' | 'loaded' | 'not-found' | 'error';
             : 'This product could not be found. It may have been removed or its URL has changed.' }}
         </p>
         <p-button
-          [label]="isAr() ? 'العودة إلى المنتجات' : 'Back to Products'"
+          [label]="isAr() === 'ar' ? 'العودة إلى المنتجات' : 'Back to Products'"
           icon="pi pi-arrow-left"
           routerLink="/products"
         />
@@ -294,10 +294,10 @@ type PageState = 'loading' | 'loaded' | 'not-found' | 'error';
       <div class="state-container">
         <i class="pi pi-exclamation-triangle state-icon error-icon"></i>
         <p class="state-title">
-          {{ isAr() ? 'حدث خطأ أثناء التحميل' : 'Something went wrong' }}
+          {{ isAr() === 'ar' ? 'حدث خطأ أثناء التحميل' : 'Something went wrong' }}
         </p>
         <p-button
-          [label]="isAr() ? 'إعادة المحاولة' : 'Try again'"
+          [label]="isAr() === 'ar' ? 'إعادة المحاولة' : 'Try again'"
           icon="pi pi-refresh"
           (click)="load()"
         />
@@ -307,10 +307,10 @@ type PageState = 'loading' | 'loaded' | 'not-found' | 'error';
     <!-- ── Loaded product ─────────────────────────────────────────────────────── -->
     @else if (pageState() === 'loaded' && product()) {
       <!-- Breadcrumb -->
-      <nav class="breadcrumb" [attr.dir]="isAr() ? 'rtl' : 'ltr'" aria-label="Breadcrumb">
-        <a routerLink="/">{{ isAr() ? 'الرئيسية' : 'Home' }}</a>
+      <nav class="breadcrumb" [attr.dir]="isAr() === 'ar' ? 'rtl' : 'ltr'" aria-label="Breadcrumb">
+        <a routerLink="/">{{ isAr() === 'ar' ? 'الرئيسية' : 'Home' }}</a>
         <span class="breadcrumb-sep">›</span>
-        <a routerLink="/products">{{ isAr() ? 'المنتجات' : 'Products' }}</a>
+        <a routerLink="/products">{{ isAr() === 'ar' ? 'المنتجات' : 'Products' }}</a>
         <span class="breadcrumb-sep">›</span>
         <span class="breadcrumb-current">{{ displayName() }}</span>
       </nav>
@@ -327,12 +327,12 @@ type PageState = 'loading' | 'loaded' | 'not-found' | 'error';
         </div>
 
         <!-- Details -->
-        <div class="details-col" [attr.dir]="isAr() ? 'rtl' : 'ltr'">
+        <div class="details-col" [attr.dir]="isAr() === 'ar' ? 'rtl' : 'ltr'">
           <!-- Category badges -->
           @if (product()!.categories.length > 0) {
             <div class="category-badges">
               @for (cat of product()!.categories; track cat.id) {
-                <span class="cat-badge">{{ isAr() ? cat.nameAr : cat.nameEn }}</span>
+                <span class="cat-badge">{{ isAr() === 'ar' ? cat.nameAr : cat.nameEn }}</span>
               }
             </div>
           }
@@ -349,7 +349,7 @@ type PageState = 'loading' | 'loaded' | 'not-found' | 'error';
           @if (displayDescription()) {
             <hr class="section-divider" />
             <div class="info-section">
-              <p class="info-label">{{ isAr() ? 'الوصف' : 'Description' }}</p>
+              <p class="info-label">{{ isAr() === 'ar' ? 'الوصف' : 'Description' }}</p>
               <p class="info-text">{{ displayDescription() }}</p>
             </div>
           }
@@ -358,7 +358,7 @@ type PageState = 'loading' | 'loaded' | 'not-found' | 'error';
           @if (displayIngredients()) {
             <hr class="section-divider" />
             <div class="info-section">
-              <p class="info-label">{{ isAr() ? 'المكونات' : 'Ingredients' }}</p>
+              <p class="info-label">{{ isAr() === 'ar' ? 'المكونات' : 'Ingredients' }}</p>
               <p class="info-text">{{ displayIngredients() }}</p>
             </div>
           }
@@ -367,7 +367,7 @@ type PageState = 'loading' | 'loaded' | 'not-found' | 'error';
           @if (displayUsage()) {
             <hr class="section-divider" />
             <div class="info-section">
-              <p class="info-label">{{ isAr() ? 'طريقة الاستخدام' : 'Usage Instructions' }}</p>
+              <p class="info-label">{{ isAr() === 'ar' ? 'طريقة الاستخدام' : 'Usage Instructions' }}</p>
               <p class="info-text">{{ displayUsage() }}</p>
             </div>
           }
@@ -377,8 +377,8 @@ type PageState = 'loading' | 'loaded' | 'not-found' | 'error';
           <p-button
             id="add-to-cart-btn"
             [label]="addedToCart()
-              ? (isAr() ? '✓ تمت الإضافة' : '✓ Added to Cart')
-              : (isAr() ? 'أضف إلى السلة' : 'Add to Cart')"
+              ? (isAr() === 'ar' ? '✓ تمت الإضافة' : '✓ Added to Cart')
+              : (isAr() === 'ar' ? 'أضف إلى السلة' : 'Add to Cart')"
             [icon]="addedToCart() ? 'pi pi-check' : 'pi pi-shopping-cart'"
             [severity]="addedToCart() ? 'success' : 'primary'"
             styleClass="p-button-lg w-full"
@@ -390,8 +390,8 @@ type PageState = 'loading' | 'loaded' | 'not-found' | 'error';
       <!-- Related products -->
       @if (relatedProducts().length > 0) {
         <section class="related-section">
-          <h2 class="related-title" [attr.dir]="isAr() ? 'rtl' : 'ltr'">
-            {{ isAr() ? 'منتجات ذات صلة' : 'Related Products' }}
+          <h2 class="related-title" [attr.dir]="isAr() === 'ar' ? 'rtl' : 'ltr'">
+            {{ isAr() === 'ar' ? 'منتجات ذات صلة' : 'Related Products' }}
           </h2>
           <div class="related-grid">
             @for (p of relatedProducts(); track p.id) {
@@ -418,7 +418,7 @@ export class ProductDetailPageComponent implements OnInit {
 
   readonly pageState = signal<PageState>('loading');
   readonly product = signal<PublicProduct | null>(null);
-  readonly relatedProducts = signal<PublicProduct[]>([]);
+  readonly relatedProducts = signal<PublicProductSummary[]>([]);
   readonly addedToCart = signal(false);
 
   // ── Computed bilingual display values ──────────────────────────────────────
@@ -491,7 +491,11 @@ export class ProductDetailPageComponent implements OnInit {
           this.product.set(p);
           this.pageState.set('loaded');
           this.setMeta(p);
-          this.loadRelated(p);
+          this.relatedProducts.set(
+            (p.relatedProducts ?? [])
+              .filter(related => related.id !== p.id && related.slug !== p.slug)
+              .slice(0, 4)
+          );
         },
         error: err => {
           if (err?.status === 404) {
@@ -527,27 +531,4 @@ export class ProductDetailPageComponent implements OnInit {
     this.metaService.updateTag({ name: 'robots', content: 'noindex' });
   }
 
-  // ── Related products ────────────────────────────────────────────────────────
-
-  private loadRelated(p: PublicProduct): void {
-    if (p.categories.length === 0) return;
-
-    // Use the first category to find related products
-    const firstCategoryId = p.categories[0].id;
-
-    this.productsService.loadRelatedProducts(firstCategoryId, p.slug, 4)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: res => {
-          const filtered = (res.data ?? [])
-            .filter(related => related.slug !== p.slug)
-            .slice(0, 4);
-          this.relatedProducts.set(filtered);
-        },
-        error: () => {
-          // Related products are non-critical — silently ignore errors
-          this.relatedProducts.set([]);
-        }
-      });
-  }
 }

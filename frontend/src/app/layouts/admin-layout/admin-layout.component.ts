@@ -14,7 +14,7 @@ import { ContactService } from '../../features/contact/contact.service';
       display: flex;
       flex-direction: column;
       min-height: 100dvh;
-      background: #0f172a;
+      background: #ffffff;
       font-family: 'Segoe UI', system-ui, sans-serif;
     }
 
@@ -25,7 +25,7 @@ import { ContactService } from '../../features/contact/contact.service';
       align-items: center;
       justify-content: space-between;
       padding: 0.875rem 1.5rem;
-      background: #1e293b;
+      background: #ffffff;
       border-bottom: 1px solid #334155;
       position: sticky;
       top: 0;
@@ -41,7 +41,7 @@ import { ContactService } from '../../features/contact/contact.service';
     .admin-brand {
       font-size: 1.125rem;
       font-weight: 700;
-      color: #f1f5f9;
+      color: #30233f;
       text-decoration: none;
     }
 
@@ -121,7 +121,7 @@ import { ContactService } from '../../features/contact/contact.service';
       font-size: 0.875rem;
       font-weight: 500;
       background: transparent;
-      border: 1px solid #475569;
+      border: 1px solid #eae2ef;
       border-radius: 0.5rem;
       color: #94a3b8;
       cursor: pointer;
@@ -151,6 +151,7 @@ import { ContactService } from '../../features/contact/contact.service';
   `],
   template: `
     <div class="admin-shell">
+      @if (authService.currentAdmin()) {
       <header class="admin-header">
         <div class="admin-header-left">
           <a class="admin-brand" routerLink="/admin/dashboard">Bio<span>NL</span> Admin</a>
@@ -228,6 +229,7 @@ import { ContactService } from '../../features/contact/contact.service';
           </button>
         </div>
       </header>
+      }
 
       <main class="admin-content">
         <router-outlet></router-outlet>

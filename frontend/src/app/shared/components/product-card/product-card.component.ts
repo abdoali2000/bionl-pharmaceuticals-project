@@ -2,12 +2,13 @@ import { Component, Input, computed, inject } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LanguageService } from '../../../core/services/language.service';
-import { PublicProduct } from '../../../features/products/products.service';
+import { PublicCategory, PublicProductSummary } from '../../../features/products/products.service';
+import { RevealDirective } from '../../../features/brand/reveal.directive';
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, RouterLink, CurrencyPipe],
+  imports: [CommonModule, RouterLink, CurrencyPipe, RevealDirective],
   styles: [`
     :host { display: block; }
 
@@ -93,6 +94,7 @@ import { PublicProduct } from '../../../features/products/products.service';
   `],
   template: `
     <a
+      appReveal
       class="card"
       [routerLink]="['/products', product.slug]"
       [attr.aria-label]="displayName()"
@@ -107,13 +109,13 @@ import { PublicProduct } from '../../../features/products/products.service';
       </div>
 
       <!-- Body -->
-      <div class="card-body" [attr.dir]="isAr() ? 'rtl' : 'ltr'">
+      <div class="card-body" [attr.dir]="isAr() === 'ar' ? 'rtl' : 'ltr'">
         <!-- Category badges -->
-        @if (product.categories.length > 0) {
+        @if (product.categories?.length) {
           <div class="card-categories">
-            @for (cat of product.categories.slice(0, 3); track cat.id) {
+            @for (cat of product.categories?.slice(0, 3); track cat.id) {
               <span class="category-badge">
-                {{ isAr() ? cat.nameAr : cat.nameEn }}
+                {{ isAr() === 'ar' ? cat.nameAr : cat.nameEn }}
               </span>
             }
           </div>
@@ -131,7 +133,7 @@ import { PublicProduct } from '../../../features/products/products.service';
   `
 })
 export class ProductCardComponent {
-  @Input({ required: true }) product!: PublicProduct;
+  @Input({ required: true }) product!: PublicProductSummary & { categories?: PublicCategory[] };
 
   private langService = inject(LanguageService);
   readonly isAr = this.langService.currentLang;

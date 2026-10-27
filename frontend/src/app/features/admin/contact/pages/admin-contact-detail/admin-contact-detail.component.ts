@@ -27,7 +27,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
     :host {
       display: block;
       padding: 1.5rem;
-      background: #0f172a;
+      background: #ffffff;
       min-height: 100%;
     }
 
@@ -43,7 +43,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
     .page-title {
       font-size: 1.375rem;
       font-weight: 700;
-      color: #f1f5f9;
+      color: #30233f;
       margin: 0;
       flex: 1;
     }
@@ -51,8 +51,8 @@ import { LanguageService } from '../../../../../core/services/language.service';
     /* ── Detail card ─────────────────────────────────────────────────────── */
 
     .detail-card {
-      background: #1e293b;
-      border: 1px solid #334155;
+      background: #ffffff;
+      border: 1px solid #eae2ef;
       border-radius: 1rem;
       overflow: hidden;
     }
@@ -70,7 +70,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
     .subject-title {
       font-size: 1.25rem;
       font-weight: 700;
-      color: #f1f5f9;
+      color: #30233f;
       margin: 0 0 0.375rem;
     }
 
@@ -106,7 +106,7 @@ import { LanguageService } from '../../../../../core/services/language.service';
 
     .meta-value {
       font-size: 0.9375rem;
-      color: #cbd5e1;
+      color: #30233f;
       font-weight: 500;
     }
 
@@ -141,12 +141,12 @@ import { LanguageService } from '../../../../../core/services/language.service';
 
     .message-body {
       font-size: 0.9375rem;
-      color: #e2e8f0;
+      color: #30233f;
       line-height: 1.75;
       white-space: pre-wrap;
       word-break: break-word;
-      background: #0f172a;
-      border: 1px solid #334155;
+      background: #ffffff;
+      border: 1px solid #eae2ef;
       border-radius: 0.625rem;
       padding: 1.25rem;
       margin: 0;
