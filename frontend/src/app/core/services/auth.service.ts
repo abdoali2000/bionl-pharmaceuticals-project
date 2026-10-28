@@ -2,7 +2,7 @@ import {
   Injectable, inject, signal, PLATFORM_ID
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, throwError, of } from 'rxjs';
+import { Observable, tap, catchError, throwError, of, map } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 import { ApiService } from './api.service';
 
@@ -10,7 +10,7 @@ export interface AdminProfile {
   id: string;
   email: string;
   fullName: string;
-  createdAt: string;
+  createdAt?: string;
 }
 
 export interface LoginPayload {
@@ -25,17 +25,6 @@ export interface ApiResponse<T> {
   meta: unknown;
 }
 
-/**
- * Key used in localStorage to persist the serialised admin profile.
- * Storing the profile (not a raw JWT) means we never handle tokens in
- * application code — the actual JWT lives in the HttpOnly cookie managed
- * by the browser and the backend.  The localStorage entry is used only to
- * pre-populate the signal synchronously on app startup so the auth guard
- * can make a synchronous decision without waiting for a round-trip.
- */
-const ADMIN_STORAGE_KEY = 'admin_profile';
-const TOKEN_STORAGE_KEY = 'auth_token';
-
 @Injectable({
   providedIn: 'root'
 })
@@ -44,26 +33,20 @@ export class AuthService {
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
 
-  /**
-   * Signal holding the currently authenticated admin, or null when
-   * unauthenticated.  Initialised synchronously from localStorage so that
-   * the auth guard never sees a false-negative null on a hard reload.
-   */
-  readonly currentAdmin = signal<AdminProfile | null>(
-    this.readStoredAdmin()
-  );
+  /** Server-validated admin session state. The JWT stays in an HttpOnly cookie. */
+  readonly currentAdmin = signal<AdminProfile | null>(null);
 
   // ── Public API ─────────────────────────────────────────────────────────────
 
   /**
    * POST /auth/login
-   * Sets currentAdmin on success and persists the profile and token to localStorage.
+   * Sets the in-memory profile on success. Authentication remains cookie-based.
    */
-  login(payload: LoginPayload): Observable<ApiResponse<{ admin: AdminProfile; token?: string }>> {
-    return this.api.post<ApiResponse<{ admin: AdminProfile; token?: string }>>('/auth/login', payload).pipe(
+  login(payload: LoginPayload): Observable<ApiResponse<{ admin: AdminProfile }>> {
+    return this.api.post<ApiResponse<{ admin: AdminProfile }>>('/auth/login', payload).pipe(
       tap(res => {
         if (res.success && res.data?.admin) {
-          this.setAdmin(res.data.admin, res.data.token);
+          this.setAdmin(res.data.admin);
         }
       })
     );
@@ -87,7 +70,7 @@ export class AuthService {
       }),
       catchError(err => {
         if (err?.status === 401) {
-          this.clearAdmin();
+          this.clearSession();
         }
         return throwError(() => err);
       })
@@ -95,19 +78,19 @@ export class AuthService {
   }
 
   /**
-   * Called by APP_INITIALIZER in the background so we don't block app bootstrap.
-   * Ensures the token is valid asynchronously. If 401 is received, it will 
-   * clear the storage and redirect inside `me()`.
+   * Resolves after asking the server whether the HttpOnly-cookie session is valid.
+   * A browser reload therefore never trusts a profile saved by client code.
    */
-  backgroundValidate(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    
-    // Only attempt to validate if we actually have a stored profile/token
-    if (!this.readStoredAdmin()) return;
+  restoreSession(): Observable<boolean> {
+    if (!isPlatformBrowser(this.platformId)) return of(false);
 
-    this.me().subscribe({
-      error: () => {} // errors handled internally by me() -> clearAdmin
-    });
+    return this.me().pipe(
+      map(() => true),
+      catchError(() => {
+        this.clearSession();
+        return of(false);
+      }),
+    );
   }
 
   /**
@@ -117,12 +100,12 @@ export class AuthService {
   logout(): void {
     this.api.post<ApiResponse<null>>('/auth/logout', {}).subscribe({
       complete: () => {
-        this.clearAdmin();
+        this.clearSession();
         this.router.navigate(['/admin/login'], { replaceUrl: true });
       },
       error: () => {
         // Clear local state even when the server call fails.
-        this.clearAdmin();
+        this.clearSession();
         this.router.navigate(['/admin/login'], { replaceUrl: true });
       }
     });
@@ -130,37 +113,11 @@ export class AuthService {
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
-  private setAdmin(admin: AdminProfile, token?: string): void {
+  private setAdmin(admin: AdminProfile): void {
     this.currentAdmin.set(admin);
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem(ADMIN_STORAGE_KEY, JSON.stringify(admin));
-      if (token) {
-        localStorage.setItem(TOKEN_STORAGE_KEY, token);
-      }
-    }
   }
 
-  private clearAdmin(): void {
-    // DO NOT clear on server side ever
-    if (!isPlatformBrowser(this.platformId)) return;
-
+  clearSession(): void {
     this.currentAdmin.set(null);
-    localStorage.removeItem(ADMIN_STORAGE_KEY);
-    localStorage.removeItem(TOKEN_STORAGE_KEY);
-  }
-
-  private readStoredAdmin(): AdminProfile | null {
-    if (!isPlatformBrowser(this.platformId)) return null;
-    try {
-      const raw = localStorage.getItem(ADMIN_STORAGE_KEY);
-      return raw ? (JSON.parse(raw) as AdminProfile) : null;
-    } catch {
-      return null;
-    }
-  }
-
-  public getToken(): string | null {
-    if (!isPlatformBrowser(this.platformId)) return null;
-    return localStorage.getItem(TOKEN_STORAGE_KEY);
   }
 }
