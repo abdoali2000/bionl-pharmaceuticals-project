@@ -139,7 +139,7 @@ On 2026-10-22, the user deferred customer-facing category filtering and search f
 
 ### FIX-AUTH-01 — Enforce login request throttling
 
-- **Status:** TODO
+- **Status:** DONE
 - **Reference:** EP-02-01.
 - **Objective:** Enforce the existing ten-attempt, fifteen-minute login limit.
 - **Scope:** Register the appropriate throttling guard and verify its actual route coverage. Use targeted scope unless wider throttling is explicitly agreed.
@@ -151,11 +151,11 @@ On 2026-10-22, the user deferred customer-facing category filtering and search f
   - [ ] The eleventh login request from the same test identity within the window receives 429.
   - [ ] Normal login still works below the limit; time-window behavior is tested without a real fifteen-minute wait.
   - [ ] Unrelated routes do not acquire an accidental new restriction.
-- **Verification:** Pending.
+- **Verification:** Completed on 2026-10-28 in commit `b69073a` (`fix(auth): enforce login attempt throttling`). The login route now explicitly uses `ThrottlerGuard`; the global 100-request policy is not applied to unrelated routes. The focused Nest HTTP test passes without a database: it verifies ten successful attempts, `429` on the eleventh attempt from the same client, recovery after the fifteen-minute window through a controlled clock, and an unrelated route still returning its normal `404`. `npm.cmd run build` passes in `backend/`.
 
 ### FIX-AUTH-02 — Validate admin sessions and handle expiration
 
-- **Status:** TODO
+- **Status:** DONE
 - **Reference:** EP-02-01, EP-02-02.
 - **Objective:** Make admin navigation depend on the server session rather than a trusted local profile.
 - **Scope:** Auth initialization, route guard, protected-request 401 handling, logout, and unused local-token/Bearer paths. Retain the HttpOnly cookie contract.
@@ -169,7 +169,7 @@ On 2026-10-22, the user deferred customer-facing category filtering and search f
   - [ ] Invalid login stays on the login form; public requests do not trigger admin redirects.
   - [ ] Logout and back navigation do not restore protected data from stale frontend state.
   - [ ] SSR does not expose private data or use browser-only storage; temporary network failures have an explicit, tested behavior.
-- **Verification:** Pending.
+- **Verification:** Completed on 2026-10-28 in commit `5434a7a` (`fix(auth): validate admin sessions and handle expiration`). The frontend no longer stores or sends a raw JWT or treats a stored profile as authentication. Application initialization waits for `GET /auth/me` to validate the HttpOnly-cookie session before guards run. A `401` from a protected admin route clears in-memory state and returns to login with an internal return URL; login, logout, and public routes do not trigger that redirect. Focused `AuthService` tests pass: `npm.cmd test -- --watch=false --include=src/app/core/services/auth.service.spec.ts` reports 3 passed. Application TypeScript check passed.
 
 ## 5. Build, rendering, and data reliability
 
@@ -559,6 +559,15 @@ On 2026-10-22, the user deferred customer-facing category filtering and search f
 
 Group verification: 14 tests passed across 3 product test files, application TypeScript check passed, and Git whitespace checks passed. Manual category-filter acceptance remains deferred by the small-catalog decision. No new production-build, full-suite, live database, or browser-visual acceptance is claimed. Original reference files and application data were not modified by this group beyond its authorized implementation files.
 
-G01 implementation completion is separate from push, review, and integration. No push or merge was performed by the assistant. Before starting G02, confirm the agreed integration/base branch and inspect the current auth code. The proposed next group is **G02 / FIX-AUTH-01 and FIX-AUTH-02** on `codex/fix-admin-auth`; it has not been started.
+G01 implementation completion is separate from push, review, and integration. It was subsequently included in the merged full website design branch.
+
+**G02 is complete: both authentication tasks are DONE** on `fix/admin-auth`.
+
+| Task | Implementation commit | Result |
+|---|---|---|
+| FIX-AUTH-01 | `b69073a` | Login throttling is enforced on the login route and regression-tested. |
+| FIX-AUTH-02 | `5434a7a` | Admin session state is validated by the server-held HttpOnly cookie. |
+
+The proposed next group is **G03 / STAB-FE-01 to STAB-FE-03** on `fix/stabilize-frontend-build`. It should begin from the updated `main` after G02 is reviewed and merged.
 
 The user's authorization in Section 1 covers necessary file changes for tasks in this completion plan without repeated file-by-file permission requests. Design selection, publication, and work outside the plan remain explicit user decisions.
