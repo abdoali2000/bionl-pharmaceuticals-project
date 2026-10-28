@@ -6,17 +6,8 @@ import { AuthService } from '../services/auth.service';
 /**
  * Functional CanActivate guard that protects all /admin/* routes.
  *
- * Strategy (post auth-persistence fix):
- *  - Reads currentAdmin signal synchronously.  The signal is pre-populated
- *    from localStorage at service construction time, so it is never null on
- *    a hard reload when the user has an active session.
- *  - APP_INITIALIZER calls AuthService.initializeAuth() once at startup,
- *    which hits GET /auth/me, refreshes the signal (or clears it on 401),
- *    and completes before any navigation guard runs.  This guarantees the
- *    guard always sees the server-validated state.
- *  - Because the signal is populated before guards execute, this function
- *    is now synchronous (returns a boolean), eliminating any per-navigation
- *    network round-trip and the race-condition that caused premature logouts.
+ * APP_INITIALIZER restores the HttpOnly-cookie session before navigation.
+ * The guard can then make a synchronous decision from server-validated state.
  */
 export const adminAuthGuard: CanActivateFn = (
   _route: ActivatedRouteSnapshot,
